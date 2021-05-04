@@ -10,11 +10,19 @@
 			<tr>
 				<th>Nombre</th>
 				<th>Descripción</th>
+				<th>Precio</th>
 				<th class="col-md-1"></th>
 			</tr>
 		</thead>
 		<tbody>
-		<!-- TODO loop a través de productos e ir mostrando nombre y descripción de cada uno -->
+		<!-- TODO loop a través de productos e ir mostrando nombre, descripción y dinero pagado por cada uno -->
+		{% for producto in productos %}
+		<tr>
+			<td>{{ producto.nombre }}</td>
+			<td>{{ producto.descripcion }}</td>
+			<td>{{ producto.precio }}</td>
+		</tr>
+		{% endfor %}
 		</tbody>
 	</table>
 </div>

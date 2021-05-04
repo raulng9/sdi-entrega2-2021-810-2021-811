@@ -1,4 +1,4 @@
-module.exports = function(app, swig, gestorBD){
+module.exports = function(app, swig, gestorUsuarios, gestorProductos){
 
     app.get("/iniciar", function(req,res){
         let respuesta = swig.renderFile('views/busuariopublico.html', {});
@@ -27,7 +27,7 @@ module.exports = function(app, swig, gestorBD){
             saldo: 100.0
         }
 
-        gestorBD.insertarUsuario(usuario, function(id) {
+        gestorUsuarios.insertarUsuario(usuario, function(id) {
             if (id == null){
                 res.redirect("/registrarse?mensaje=Error al registrar usuario");
             } else {
@@ -45,12 +45,10 @@ module.exports = function(app, swig, gestorBD){
             email : req.body.email,
             password : seguro
         }
-        gestorBD.obtenerUsuarios(criterio, function(usuarios) {
+        gestorUsuarios.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 req.session.usuario = null;
-                res.redirect("/identificarse" +
-                    "?mensaje=Email o password incorrecto"+
-                    "&tipoMensaje=alert-danger ");
+                res.send("Error al obtener el usuario");
             } else {
                 req.session.usuario = usuarios[0].email;
                 res.redirect("/publicaciones");
@@ -66,7 +64,8 @@ module.exports = function(app, swig, gestorBD){
 
     //TODO incluir redirección a vista de admin si el usuario lo es
     app.get('/administrar', function (req, res) {
-
+        //En el gestor de usuarios obtenemos los que sean criterio admin=true
+        //y devolvemos a la vista de admin
     });
 
 

@@ -21,18 +21,23 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>                        
       </button>
-      <img src="/img/logo.png" alt="logo"/> 
+      <img src="/img/logo.png" alt="Logo de MyWallapop"/>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
         <li id="mTienda" class="active"><a href="/tienda">Tienda</a></li>
-		<li id="mPublicaciones"><a href="/publicaciones">Publicaciones</a></li>
-        <li id="mCompras"><a href="/compras">Compras</a></li>
+		<li id="mPublicaciones"><a href="/publicaciones">Mis productos</a></li>
+        <li id="mAgregar"><a href="/producto/agregar">Añadir producto</a></li>
+        <li id="mCompras"><a href="/compras">Mis compras</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/desconectarse"><span class="glyphicon glyphicon-log-out"></span> Desconectarse</a></li>
-	    <li><a href="/registrarse"><span class="glyphicon glyphicon-user"></span> Registrate</a></li>
-        <li><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
+        {% if usuario != null %}
+        <li><a href="/desconectarse"><span class="glyphicon glyphicon-log-out"></span>Cerrar sesión</a></li>
+        {% endif %}
+        {% if usuario == null %}
+	    <li><a href="/registrarse"><span class="glyphicon glyphicon-user"></span>Registrarse</a></li>
+        <li><a href="/identificarse"><span class="glyphicon glyphicon-log-in"></span>Iniciar sesión</a></li>
+        {% endif %}
       </ul>
     </div>
   </div>

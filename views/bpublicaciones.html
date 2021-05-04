@@ -2,6 +2,32 @@
 
 {% block contenido_principal %}
 <h2>Mis productos en venta</h2>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th class="col-md-1">Precio</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>{{ producto.precio }} (€)</td>
+            <td>
+                <a href="/producto/{{ producto._id.toString() }}">Detalles</a> <br>
+                <a href="/producto/modificar/{{ producto._id.toString() }}">Modificar</a> <br>
+                <a href="/producto/eliminar/{{ producto._id.toString() }}" id="eliminar/{{producto.nombre}}">Eliminar</a> <br>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 
 {% endblock %}
