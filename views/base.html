@@ -25,10 +25,12 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
+        {% if usuario != null && usuario != 'admin@email.com'%}
         <li id="mTienda" class="active"><a href="/tienda">Tienda</a></li>
 		<li id="mPublicaciones"><a href="/publicaciones">Mis productos</a></li>
         <li id="mAgregar"><a href="/producto/agregar">Añadir producto</a></li>
         <li id="mCompras"><a href="/compras">Mis compras</a></li>
+        {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if usuario != null %}
@@ -46,6 +48,16 @@
 
 
 <div class="container">
+  {% if usuario != null && usuario != 'admin@email.com' %}
+  <p style="text-align: center">
+    <span ><small>Usuario: </small></span>
+    <span><small>{{usuario}}</small> <span></span></span>
+  </p>
+
+  <p style="text-align: center">
+    <span ><small>Saldo disponible: {{saldo}} €</small></span>
+  </p>
+  {% endif %}
   <script>
     let mensaje = getUrlParameter('mensaje');
     let tipoMensaje = getUrlParameter('tipoMensaje');

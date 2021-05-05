@@ -19,8 +19,6 @@
             <td>{{ producto.descripcion }}</td>
             <td>{{ producto.precio }} (€)</td>
             <td>
-                <a href="/producto/{{ producto._id.toString() }}">Detalles</a> <br>
-                <a href="/producto/modificar/{{ producto._id.toString() }}">Modificar</a> <br>
                 <a href="/producto/eliminar/{{ producto._id.toString() }}" id="eliminar/{{producto.nombre}}">Eliminar</a> <br>
             </td>
         </tr>

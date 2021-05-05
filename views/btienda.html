@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block titulo %} Tienda – uoMusic {% endblock %}
+{% block titulo %} Tienda - Wallapop {% endblock %}
 
 {% block contenido_principal %}
 <!-- Busqueda -->
 <div class="row">
     <div id="custom-search-input ">
-        <form method="get" action="/tienda" >
+        <form method="get" action="/tienda">
             <div
                     class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right">
                 <input type="text" class="search-query form-control"
@@ -23,7 +23,38 @@
 <h2>Productos</h2>
 <div class="row">
     <!-- Inicio del Bloque producto -->
+    {% for producto in productos %}
+    <div>
+        <hr size="20px" color="black"/>
+        <div style="width: 200px">
+            <div>
+                <div>
+                    <div class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right" style="margin-bottom: 14%">
+                        {% if producto.comprador != null %}
+                        <p class="bg-danger text-white" style="text-align: center; font-size:15px">Vendido</p>
+                        {% endif %}
+                        {% if producto.propietario == usuario && producto.comprador == null %}
+                        <span>Producto propio</span>
+                        {% endif %}
+                        {% if producto.comprador == null && producto.propietario != usuario %}
+                        <a class="btn btn-primary pull-center"
+                           href="/producto/comprar/{{producto._id.toString()}}"
+                           class="btn btn-primary pull-center"
+                           id="comprar/{{producto.nombre}}">Comprar</a>
+                        {% endif %}
+                    </div>
+                    <!-- http://www.socicon.com/generator.php -->
+                    <a href="/producto/{{ producto._id.toString() }}">
+                        <div>{{ producto.nombre }}</div>
+                        <div>{{producto.descripcion}}</div>
+                        <div>{{ producto.precio }} €</div>
+                    </a>
 
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
     <!-- Fin del Bloque producto -->
 </div>
 <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
