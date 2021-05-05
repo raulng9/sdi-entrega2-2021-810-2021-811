@@ -27,12 +27,33 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             isAdmin: false,
             saldo: 100.0
         }
-
-        gestorUsuarios.insertarUsuario(usuario, function (id) {
-            if (id == null) {
-                res.redirect("/registrarse?mensaje=Error al registrar usuario");
-            } else {
-                res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
+        var criterio = {
+            email : req.body.email
+        };
+        gestorUsuarios.obtenerUsuarios(criterio, function (users) {
+            if (users.length > 0) {
+                res.redirect("/registrarse?mensaje=Usuario ya existente" + "&tipoMensaje=alert-danger");
+            }
+            else if(usuario.nombre.length <=1 ){
+                res.redirect("/registrarse?mensaje=Nombre demasiado corto" + "&tipoMensaje=alert-danger");
+            }
+            else if(usuario.apellidos.length <=1 ){
+                res.redirect("/registrarse?mensaje=Apellidos demasiado cortos" + "&tipoMensaje=alert-danger");
+            }
+            else if(usuario.email.length == 0 ){
+                res.redirect("/registrarse?mensaje=Email demasiado corto" + "&tipoMensaje=alert-danger");
+            }
+            else if (req.body.password !== req.body.passwordConfirm){
+                res.redirect("/registrarse?mensaje=Las contraseñas deben coincidir" + "&tipoMensaje=alert-danger");
+            }
+            else {
+                gestorUsuarios.insertarUsuario(usuario, function (id) {
+                    if (id == null) {
+                        res.redirect("/registrarse?mensaje=Error al registrar usuario")
+                    } else {
+                        res.redirect("/identificarse?mensaje=Nuevo usuario registrado");
+                    }
+                });
             }
         });
     });
@@ -48,7 +69,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         gestorUsuarios.obtenerUsuarios(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 req.session.usuario = null;
-                res.send("Error al obtener el usuario");
+                res.redirect("/identificarse?mensaje=Email o contraseña invalidos" + "&tipoMensaje=alert-danger");
             } else {
                 req.session.usuario = usuarios[0].email;
                 req.session.saldo = usuarios[0].saldo;
