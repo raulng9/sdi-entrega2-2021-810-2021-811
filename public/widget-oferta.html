@@ -1,0 +1,49 @@
+<div id="widget-ofertas" >
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Vendedor</th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+
+        </tbody>
+    </table>
+</div>
+<script>
+    let productos;
+    function cargarProductos(){
+        $.ajax({
+            url: URLbase + "/ofertas",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                productos = respuesta;
+                actualizarTabla(productos);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function actualizarTabla(productosMostrar){
+        $( "#tablaCuerpo" ).empty();
+        for (i = 0; i < productosMostrar.length; i++) {
+            $( "#tablaCuerpo" ).append(
+                "<tr id="+productosMostrar[i]._id+">"+
+                "<td>"+productosMostrar[i].nombre+"</td>" +
+                "<td>"+productosMostrar[i].descripcion+"</td>" +
+                "<td>"+productosMostrar[i].precio+"</td>" +
+                "<td>"+productosMostrar[i].propietario+"</td>" +
+                "</td>" +
+                "</tr>" );
+        }
+    }
+    cargarProductos();
+
+</script>

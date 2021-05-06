@@ -10,7 +10,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                var collection = db.collection('productos');
+                let collection = db.collection('productos');
                 collection.find(criterio).toArray(function(err, productos) {
                     if (err) {
                         funcionCallback(null);
@@ -27,7 +27,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                var collection = db.collection('productos');
+                let collection = db.collection('productos');
                 collection.count(function(err, count){
                     collection.find(criterio).skip( (pg-1)*5 ).limit( 5 )
                         .toArray(function(err, productos) {
@@ -64,7 +64,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                var collection = db.collection('productos');
+                let collection = db.collection('productos');
                 collection.update(criterio, {$set: producto}, function(err, result) {
                     if (err) {
                         funcionCallback(null);
@@ -81,7 +81,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                var collection = db.collection('productos');
+                let collection = db.collection('productos');
                 collection.deleteMany(criterio, function(err, result) {
                     if (err) {
                         funcionCallback(null);

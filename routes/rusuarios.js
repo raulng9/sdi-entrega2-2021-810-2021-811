@@ -27,7 +27,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             isAdmin: false,
             saldo: 100.0
         }
-        var criterio = {
+        let criterio = {
             email : req.body.email
         };
         gestorUsuarios.obtenerUsuarios(criterio, function (users) {
@@ -40,7 +40,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             else if(usuario.apellidos.length <=1 ){
                 res.redirect("/registrarse?mensaje=Apellidos demasiado cortos" + "&tipoMensaje=alert-danger");
             }
-            else if(usuario.email.length == 0 ){
+            else if(usuario.email.length === 0 ){
                 res.redirect("/registrarse?mensaje=Email demasiado corto" + "&tipoMensaje=alert-danger");
             }
             else if (req.body.password !== req.body.passwordConfirm){
@@ -69,11 +69,11 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         gestorUsuarios.obtenerUsuarios(criterio, function (usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 req.session.usuario = null;
-                res.redirect("/identificarse?mensaje=Email o contraseña invalidos" + "&tipoMensaje=alert-danger");
+                res.redirect("/identificarse?mensaje=Email o contraseña inválidos" + "&tipoMensaje=alert-danger");
             } else {
                 req.session.usuario = usuarios[0].email;
                 req.session.saldo = usuarios[0].saldo;
-                if (usuarios[0].email == "admin@email.com") {
+                if (usuarios[0].email === "admin@email.com") {
                     res.redirect("/administrar")
                 } else {
                     res.redirect("/publicaciones");
@@ -89,7 +89,8 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         res.redirect("/identificarse");
     });
 
-    //TODO incluir redirección a vista de admin si el usuario lo es
+    //ROUTER YA APLICADO EN APP.JS
+    /*
     app.get('/administrar', function (req, res) {
         //En el gestor de usuarios obtenemos los que sean criterio admin=true
         //y devolvemos a la vista de admin
@@ -104,11 +105,12 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             res.send(respuesta);
         });
     });
+    */
 
     app.post('/usuario/eliminar', function (req, res) {
-        var usuarios = req.body.usuarios;
-        var criterio_usuario = {};
-        var criterio_producto = {};
+        let usuarios = req.body.usuarios;
+        let criterio_usuario = {};
+        let criterio_producto = {};
         if (typeof usuarios !== 'undefined') {
             //Si solo hay un usuario
             if (typeof usuarios === "string") {

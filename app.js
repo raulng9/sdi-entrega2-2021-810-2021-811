@@ -55,8 +55,10 @@ app.set('crypto',crypto);
 require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
 require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
 require("./routes/rerrores.js")(app, swig);
-//require("./routes/rapiproductos.js")(app,swig, gestorUsuarios, gestorProductos);
+require("./routes/rapiusuario.js")(app, gestorUsuarios);
+require("./routes/rapiproductos.js")(app, gestorProductos);
 
+//Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
 app.get('/', function(req,res){
     if(req.session.usuario) {
         if(req.session.usuario === 'admin@admin.com'){
@@ -81,6 +83,56 @@ app.use(function (err, req, res, next) {
 });
 */
 
+//ROUTERS
+let routerTokenDeUsuario = express.Router();
+routerTokenDeUsuario.use(function(req, res, next) {
+    let token = req.headers['token'] || req.body.token || req.query.token;
+    if (token != null) {
+        // Checkeamos que es correcto
+        jwt.verify(token, 'secreto', function(err, infoToken) {
+            if (err || (Date.now()/1000 - infoToken.tiempo) > 240 ){
+                res.status(403); // Forbidden
+                res.json({
+                    acceso : false,
+                    error: 'El token recibido es inválido ya ha caducado'
+                });
+            } else {
+                res.usuario = infoToken.usuario;
+                next();
+            }
+        });
+
+    } else {
+        res.status(403); // Forbidden
+        res.json({
+            acceso : false,
+            mensaje: 'No hay Token'
+        });
+    }
+});
+
+//Router para la vista de admin
+let routerVistaAdmin = express.Router();
+routerVistaAdmin.use(function(req, res, next) {
+    console.log(req.session.usuario);
+    if ( req.session.usuario ) {
+        if (req.session.usuario === 'admin@email.com') {
+            next();
+        } else {
+            res.redirect('/tienda');
+        }
+    }
+    else {
+        res.redirect('/identificarse')
+    }
+});
+
+//Aplicamos los routers a los endpoints correspondientes
+app.use('/api/ofertas', routerTokenDeUsuario);
+app.use("/administrar",routerVistaAdmin);
+
+
+//Mensaje inicial para notificar en dev
 app.listen(app.get('port'), function () {
     console.log("Server activo");
 });

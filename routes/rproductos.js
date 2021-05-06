@@ -48,7 +48,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
 
         let pg = parseInt(req.query.pg);
 
-        //Para evitar problemas si el parámetro no se envía
+        //Para evitar problemas si el parámetro no se envía, por defecto a la página 1
         if (req.query.pg == null) {
             pg = 1;
         }
