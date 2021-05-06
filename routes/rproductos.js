@@ -4,7 +4,12 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
     app.post("/producto", function (req, res) {
         if (req.body.nombre === '' || req.body.descripcion === '' || req.body.precio === '') {
             res.send("Error en los datos del producto");
-        } else {
+        } else if(req.body.nombre.length <= 2){
+            res.redirect("/producto/agregar?mensaje=Nombre demasiado corto" + "&tipoMensaje=alert-danger")
+        }else if(req.body.precio <= 0){
+            res.redirect("/producto/agregar?mensaje=El precio no puede ser negativo ni cero" + "&tipoMensaje=alert-danger")
+        }
+        else {
             let productoParaInsertar = {
                 nombre: req.body.nombre,
                 descripcion: req.body.descripcion,
