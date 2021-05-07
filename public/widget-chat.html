@@ -16,7 +16,7 @@
 </div>
 <div>
     <input type="text" class="form-control"
-           placeholder="Escribe un mensaje" id="enviar_mensaje" name="mensaje"/>
+           placeholder="Escribe aquí tu mensaje" id="enviar_mensaje" name="mensaje"/>
     <span class="input-group-btn">
              <button class="btn btn-primary" onclick="enviarMensaje()">Enviar</button>
         </span>
@@ -27,9 +27,6 @@
         $.ajax({
             url : URLbase + "/leermensajes/" + productoSeleccionado,
             type : "GET",
-            data : {
-                //"productoSeleccionado" : productoSeleccionado
-            },
             dataType : 'json',
             headers : {
                 "token" : token,
@@ -39,12 +36,12 @@
                 actualizarTabla(respuesta);
             },
             error : function(error) {
-                console.log("Error");
+                console.log("Error al cargar los mensajes");
             }
         });
     }
     function actualizarTabla(mensajesMostrar) {
-        $("#tablaCuerpoChat").empty(); // Vaciar la tabla
+        $("#tablaCuerpoChat").empty();
         for (i = 0; i < mensajesMostrar.length; i++) {
             $("#tablaCuerpoChat").append(
                 "<tr id="+mensajesMostrar[i]._id+">" + "<td>"
@@ -58,7 +55,7 @@
 
     function enviarMensaje() {
         $.ajax({
-            url: URLbase + "/mensajes",
+            url: URLbase + "/enviarmensaje",
             type: "POST",
             data: {
                 producto: productoSeleccionado,

@@ -1,23 +1,23 @@
 module.exports = function (app, gestorProductos, gestorChat) {
-//Enviar mensajes
-    app.post("/api/mensajes", function (req, res) {
-            var date = new Date();
-            var usuario = req.session.usuario;
-            var producto = req.body.producto;
-            var criterio_producto = {
+
+    app.post("/api/enviarmensaje", function (req, res) {
+            let date = new Date();
+            let usuario = req.session.usuario;
+            let producto = req.body.producto;
+            let criterio_producto = {
                 "_id": gestorProductos.mongo.ObjectID(producto)
             };
             gestorProductos.obtenerProductos(criterio_producto, function (productos) {
                 if (productos == null) {
                     res.status(500);
                     res.json({
-                        error: "se ha producido un error"
+                        error: "Se ha producido un error al obtener los productos de la BBDD"
                     });
                 }
-                var propietario = productos[0].propietario;
-                var texto = req.body.texto;
-                var id_producto = productos[0]._id.toString();
-                var criterio_conversacion = {
+                let propietario = productos[0].propietario;
+                let texto = req.body.texto;
+                let id_producto = productos[0]._id.toString();
+                let criterio_conversacion = {
                     "usuario1": usuario,
                     "usuario2": propietario,
                     "producto": id_producto
@@ -26,11 +26,12 @@ module.exports = function (app, gestorProductos, gestorChat) {
                 if (usuario === propietario && typeof req.body.recep === 'undefined') {
                     res.status(500);
                     res.json({
-                        error: "Error de formato"
+                        error: "Error de formato en los datos, falta el receptor o el usuario es el propietario del producto"
                     })
                 } else {
+                    //Envío correcto a priori
                     if (usuario === propietario && typeof req.body.recep !== 'undefined') {
-                        var receptor = req.body.recep;
+                        let receptor = req.body.recep;
                         criterio_conversacion = {
                             "usuario1": receptor,
                             "usuario2": propietario,
@@ -38,14 +39,16 @@ module.exports = function (app, gestorProductos, gestorChat) {
                         };
                     }
                     gestorChat.obtenerConversacion(criterio_conversacion, function (conversaciones) {
+                        //Conversación no existente porque el usuario no puede hablar consigo mismo
                         if (conversaciones.length === 0 && usuario === propietario) {
                             res.status(500);
                             res.json({
-                                error: "el usuario propietario de un producto no puede iniciar el chat."
+                                error: "Solo los usuarios interesados pueden iniciar una conversación"
                             })
+                            //Conversación ya existente, solamente tenemos que incluir el nuevo mensaje
                         } else if (conversaciones.length > 0) {
-                            var id_conversacion = conversaciones[0]._id;
-                            var criterio_mensaje = {
+                            let id_conversacion = conversaciones[0]._id;
+                            let criterio_mensaje = {
                                 "emisor": usuario,
                                 "texto": texto,
                                 "leido": false,
@@ -56,24 +59,25 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                 if (mensajes == null) {
                                     res.status(500);
                                     res.json({
-                                        error: "se ha producido un error insertado el mensaje"
+                                        error: "Se ha producido un error al insertar el mensaje en la conversación"
                                     })
                                 } else {
                                     res.status(201);
                                     res.json({
-                                        mensaje: "Mensaje enviado"
+                                        mensaje: "Mensaje enviado con éxito"
                                     })
                                 }
                             });
                         } else {
+                            //Nueva conversación, se inserta y luego el mensaje en ella
                             gestorChat.insertarConversacion(criterio_conversacion, function (conversacion) {
                                 if (conversacion == null) {
                                     res.status(500); // Unauthorized
                                     res.json({
-                                        error: "se ha producido un error insertando la conversación"
+                                        error: "Se ha producido un error al insertar la conversación en la BBDD"
                                     })
                                 } else {
-                                    var criterio_mensaje = {
+                                    let criterio_mensaje = {
                                         "emisor": usuario,
                                         "texto": texto,
                                         "leido": false,
@@ -84,12 +88,12 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                         if (mensajes == null) {
                                             res.status(500);
                                             res.json({
-                                                error: "se ha producido un error insertando el mensaje"
+                                                error: "Se ha producido un error al insertar el mensaje en la conversación"
                                             })
                                         } else {
                                             res.status(201);
                                             res.json({
-                                                error: "Mensaje enviado"
+                                                error: "Mensaje enviado con éxito"
                                             })
                                         }
                                     });
@@ -102,22 +106,23 @@ module.exports = function (app, gestorProductos, gestorChat) {
         }
     );
 
-    app.get("/api/leermensajes/:producto", function (req, res) {
-        var usuario = req.session.usuario;
-        var producto = req.params.producto;
+    //Obtener conversación para un producto dado
+    app.get("/api/mensaje/:producto", function (req, res) {
+        let usuario = req.session.usuario;
+        let producto = req.params.producto;
 
-        var criterio_producto = {
+        let criterio_producto = {
             _id: gestorProductos.mongo.ObjectID(producto)
         };
         gestorProductos.obtenerProductos(criterio_producto, function (productos) {
             if (productos == null) {
                 res.status(500);
                 res.json({
-                    error: "no se ha encontrado el producto"
-                })
+                    error: "Error al obtener el producto de la conversación"
+                });
             } else {
                 if (productos) {
-                    var criterio_conversacion = {
+                    let criterio_conversacion = {
                         producto: producto
                     };
                     if (productos[0].propietario !== usuario) {
@@ -131,26 +136,28 @@ module.exports = function (app, gestorProductos, gestorChat) {
                             usuario2: usuario
                         }
                     }
+                    //Obtenemos conversación relativa al producto
                     gestorChat.obtenerConversacion(criterio_conversacion, function (conversaciones) {
                         if (conversaciones === null) {
                             res.status(501);
                             res.json({
-                                error: "se ha producido un error obteniendo las conversaciones las conversaciones"
-                            })
+                                error: "Se produjo un error al obtener las conversaciones de la BBDD"
+                            });
+                            //Caso de propietario del producto
                         } else if (productos[0].propietario === usuario) {
                             if (typeof req.headers['conversacion'] === 'undefined') {
                                 res.status(200);
                                 res.send(JSON.stringify(conversaciones));
                             } else if (typeof req.headers['conversacion'] !== 'undefined') {
-                                var conversacion = req.headers['conversacion'];
-                                var criterio_mensajes = {
+                                let conversacion = req.headers['conversacion'];
+                                let criterio_mensajes = {
                                     "conversacion": gestorChat.mongo.ObjectID(conversacion)
                                 };
                                 gestorChat.obtenerMensajes(criterio_mensajes, function (mensajes) {
                                     if (mensajes == null) {
                                         res.status(501);
                                         res.json({
-                                            error: "se ha producido un error con los mensajes"
+                                            error: "Se produjo un error al obtener las conversaciones de la BBDD"
                                         })
                                     } else {
                                         res.status(200);
@@ -158,8 +165,9 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                     }
                                 });
                             }
+                            //Caso de usuario interesado en el producto
                         } else {
-                            var criterio_mensajes = {
+                            let criterio_mensajes = {
                                 conversacion: {
                                     $in: conversaciones.map(c => c._id)
                                 }
@@ -168,7 +176,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                 if (mensajes == null) {
                                     res.status(501);
                                     res.json({
-                                        error: "se ha producido un error con los mensajes"
+                                        error: "Se produjo un error al obtener los mensajes de la BBDD"
                                     })
                                 } else {
                                     res.status(200);

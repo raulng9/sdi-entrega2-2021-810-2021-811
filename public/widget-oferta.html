@@ -15,7 +15,6 @@
 </div>
 <script>
     let productos;
-
     function cargarProductos() {
         $.ajax({
             url: URLbase + "/ofertas",
@@ -43,7 +42,7 @@
                 "<td>" + productosMostrar[i].precio + "</td>" +
                 "<td>" + productosMostrar[i].propietario + "</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "')>Chat</a>" +
+                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "')>Chatear</a>" +
                 "</td>" +
                 "</tr>");
         }

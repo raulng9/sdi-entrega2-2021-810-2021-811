@@ -1,0 +1,52 @@
+<div id="widget-ofertas" >
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+        </tr>
+        </thead>
+        <tbody id="tablaProductosPropios">
+        </tbody>
+    </table>
+</div>
+<script>
+    let productosPropios;
+    function cargarProductosPropios(){
+        $.ajax({
+            url: URLbase + "/productospropios",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                productosPropios = respuesta;
+                actualizarTabla(productosPropios);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function actualizarTabla(productosMostrar){
+        $( "#tablaProductosPropios" ).empty(); // Vaciar la tabla
+        for (i = 0; i < productosMostrar.length; i++) {
+            $( "#tablaProductosPropios" ).append(
+                "<tr id="+productosMostrar[i]._id+">"+
+                "<td>"+productosMostrar[i].nombre+"</td>" +
+                "<td>"+productosMostrar[i].descripcion+"</td>" +
+                "<td>"+productosMostrar[i].precio+"</td>" +
+                "<td>" +
+                "<a onclick=mostrarConversaciones('"+productosMostrar[i]._id+"')>Conversaciones del producto</a>"+
+                "</td>" +
+                "</tr>" );
+        }
+    }
+    cargarProductosPropios();
+
+    function mostrarConversaciones(product) {
+        productoSeleccionado = product;
+        $( "#contenedor-principal" ).load( "widget-conversacion.html" );
+    }
+</script>
