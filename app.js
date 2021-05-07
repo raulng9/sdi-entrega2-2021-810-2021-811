@@ -31,8 +31,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 let gestorProductos = require("./modules/gestorProductos.js");
 let gestorUsuarios = require("./modules/gestorUsuarios.js");
+let gestorChat = require("./modules/gestorChat.js");
 gestorUsuarios.init(app,mongo);
 gestorProductos.init(app,mongo);
+gestorChat.init(app,mongo);
 
 //let gestorChat = require("./modules/gestorChat.js");
 //gestorChat.init(app,mongo);
@@ -57,6 +59,7 @@ require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
 require("./routes/rerrores.js")(app, swig);
 require("./routes/rapiusuario.js")(app, gestorUsuarios);
 require("./routes/rapiproductos.js")(app, gestorProductos);
+require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
 
 //Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
 app.get('/', function(req,res){

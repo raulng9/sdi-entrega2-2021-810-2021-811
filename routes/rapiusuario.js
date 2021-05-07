@@ -3,7 +3,6 @@ module.exports = function(app, gestorUsuarios) {
     app.post("/api/autenticar/", function(req, res) {
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
-
         let criterio = {
             email : req.body.email,
             password : seguro
@@ -18,6 +17,7 @@ module.exports = function(app, gestorUsuarios) {
                         {
                             usuario: criterio.email ,
                             tiempo: Date.now()/1000}, "secreto");
+                req.session.usuario=usuarios[0].email;
                 res.status(200);
                 res.json({
                     autenticado : true,
@@ -26,6 +26,8 @@ module.exports = function(app, gestorUsuarios) {
             }
         });
     });
+
+
 
 
 }
