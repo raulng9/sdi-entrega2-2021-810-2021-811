@@ -127,10 +127,62 @@ routerVistaAdmin.use(function(req, res, next) {
     }
 });
 
+//Router para garantizar que la vista de bienvenida solo está accessible para usuarios no identificados
+let routerNoAutenticado = express.Router();
+routerNoAutenticado.use(function(req, res, next) {
+    if ( req.session.usuario ) {
+        if (req.session.usuario === 'admin@email.com') {
+            res.redirect('/administrar');
+        } else {
+            res.redirect('/tienda');
+        }
+    }
+    else {
+        next();
+    }
+});
+
+//Router para permitir acceder a las vistas de compra/añadir producto... solo a usuarios logueados y no admins
+let routerUsuarioNoAdmin = express.Router();
+routerUsuarioNoAdmin.use(function(req, res, next) {
+    if ( req.session.usuario ) {
+        if( req.session.usuario !== 'admin@email.com'){
+            next();
+        }
+        else {
+            res.redirect("/administrar");
+        }
+    } else {
+        res.redirect("/iniciar");
+    }
+});
+
+//Router para ver si el usuario es el dueño de una oferta determinada (autor-canción mod.) antes de poder borrarla
+let routerEsPropietario = express.Router();
+routerEsPropietario.use(function(req, res, next) {
+    let path = require('path');
+    let id = path.basename(req.originalUrl);
+    gestorProductos.obtenerProductos(
+        {_id: mongo.ObjectID(id) }, function (productos) {
+            if(productos[0].propietario === req.session.usuario ){
+                next();
+            } else {
+                res.redirect("/tienda");
+            }
+        })
+});
+
 //Aplicamos los routers a los endpoints correspondientes
 app.use('/api/ofertas', routerTokenDeUsuario);
+app.use('/api/chat', routerTokenDeUsuario);
+app.use('/api/mensaje', routerTokenDeUsuario);
 app.use("/administrar",routerVistaAdmin);
-
+app.use("/iniciar",routerNoAutenticado);
+app.use("/producto/agregar",routerUsuarioNoAdmin);
+app.use("/publicaciones",routerUsuarioNoAdmin);
+app.use("/producto/comprar",routerUsuarioNoAdmin);
+app.use("/compras",routerUsuarioNoAdmin);
+app.use("/producto/eliminar",routerEsPropietario);
 
 //Mensaje inicial para notificar en dev
 app.listen(app.get('port'), function () {

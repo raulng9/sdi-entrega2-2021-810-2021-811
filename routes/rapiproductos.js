@@ -5,7 +5,7 @@ module.exports = function(app, gestorProductos) {
         //Solo aquellas aún disponibles
         let criterio = {
             //Operador para evitar mostrar los productos propios
-            propietario : {$nin : [res.usuario]},
+            propietario : {$ne: res.usuario},
             comprador : null
         };
 
