@@ -111,6 +111,66 @@
     }
 
     function eliminarChat(conversacion){
-        console.log("A punto de eliminar chat " + conversacion);
+        $.ajax({
+            url: URLbase + "/mensajes/conv/" + conversacion,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+                "conversacion" : conversacion
+            },
+            success: function(respuesta) {
+                //Primero se eliminan los mensajes y después la conversación
+                eliminarMensajes(respuesta);
+               eliminarConversacion(conversacion);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
     }
+
+
+    function eliminarMensajes(listaDeMensajes){
+        for(let i = 0; i < listaDeMensajes.length; i++){
+            console.log("eliminando " + listaDeMensajes[i]);
+            $.ajax({
+                url: URLbase + "/mensajes/eliminar/" + listaDeMensajes[i]._id,
+                type: "GET",
+                data: { },
+                dataType: 'json',
+                headers: {
+                    "token": token,
+                },
+                success: function(respuesta) {
+                   console.log("mensaje eliminado correctamente");
+                },
+                error : function (error){
+                    $( "#contenedor-principal" ).load("widget-login.html");
+                }
+            });
+        }
+    }
+
+    function eliminarConversacion(conversacion){
+        $.ajax({
+            url: URLbase + "/mensajes/eliminar/" + conversacion._id,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+            },
+            success: function(respuesta) {
+                console.log("mensaje eliminado correctamente");
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+
+
+
 </script>

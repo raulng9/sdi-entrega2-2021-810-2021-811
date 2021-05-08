@@ -70,5 +70,25 @@
 
     function eliminarChat(conversacion){
         console.log("A punto de eliminar la conversación " + conversacion);
+
+    }
+
+    function eliminar( _id ) {
+        $.ajax({
+            url: URLbase + "/cancion/"+_id,
+            type: "DELETE",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token },
+            success: function(respuesta) {
+                console.log("Eliminada: "+_id);
+                $( "#"+ _id ).remove(); // eliminar el <tr> de la canción
+            },
+            error : function (error) {
+                let errorDiv = $('#error-container')
+                errorDiv.show();
+                errorDiv.text('Error: ' + error.responseJSON.error);
+            }
+        });
     }
 </script>

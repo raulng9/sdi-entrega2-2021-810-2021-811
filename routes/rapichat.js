@@ -197,7 +197,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         let usuario = req.session.usuario;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
         let criterio_usuario_en_conv = {
-                 "usuario1": usuario
+            "usuario1": usuario
         };
         gestorChat.obtenerConversacion(criterio_usuario_en_conv, function (conversaciones) {
             if (conversaciones === null) {
@@ -217,8 +217,8 @@ module.exports = function (app, gestorProductos, gestorChat) {
         let usuario = req.session.usuario;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
         let criterio_usuario_en_conv = {
-                 "usuario2": usuario
-             };
+            "usuario2": usuario
+        };
         gestorChat.obtenerConversacion(criterio_usuario_en_conv, function (conversaciones) {
             if (conversaciones === null) {
                 res.status(501);
@@ -229,6 +229,80 @@ module.exports = function (app, gestorProductos, gestorChat) {
             } else {
                 console.log(JSON.stringify(conversaciones));
                 res.send(JSON.stringify(conversaciones));
+            }
+        });
+    });
+
+    //Obtener todos los mensajes de una conversación dada
+    app.get("/api/mensajes/conv/:conversacion", function (req, res) {
+        var conversacion = req.params.conversacion;
+        //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
+
+        let criterio_conversacion = {
+            "_id": gestorChat.mongo.ObjectID(conversacion)
+        };
+
+        gestorChat.obtenerConversacion(criterio_conversacion, function (conversaciones) {
+            if (conversaciones === null) {
+                res.status(501);
+                res.json({
+                    error: "Se produjo un error al obtener las conversaciones de la BBDD"
+                });
+                //Caso de propietario del producto
+            } else {
+                let conversacion = req.headers['conversacion'];
+                let criterio_mensajes = {
+                    "conversacion": gestorChat.mongo.ObjectID(conversacion)
+                };
+                gestorChat.obtenerMensajes(criterio_mensajes, function (mensajes) {
+                    if (mensajes == null) {
+                        res.status(501);
+                        res.json({
+                            error: "Se produjo un error al obtener las conversaciones de la BBDD"
+                        })
+                    } else {
+                        res.status(200);
+                        console.log("mensajes obtenidos");
+                        console.log(JSON.stringify(mensajes));
+                        res.send(JSON.stringify(mensajes));
+                    }
+                });
+            }
+        });
+    });
+
+    //Obtener todos los mensajes de una conversación dada
+    app.get("/api/mensajes/eliminar/:id", function (req, res) {
+        console.log("eliminando mensaje " + req.params.id);
+        let criterio_mensaje = {"_id": gestorChat.mongo.ObjectID(req.params.id)};
+        gestorChat.eliminarMensaje(criterio_mensaje, function (mensaje) {
+            if (mensaje === null) {
+                res.status(501);
+                res.json({
+                    error: "El mensaje a eliminar no se ha encontrado"
+                });
+            } else {
+                res.status(200);
+                console.log("a eliminar mensaje");
+                res.send(JSON.stringify(mensaje));
+            }
+        });
+    });
+
+    //Obtener todos los mensajes de una conversación dada
+    app.get("/api/conversaciones/eliminar/:id", function (req, res) {
+        let criterio_conversacion = {"_id": gestorChat.mongo.ObjectID(req.params.id)};
+        console.log("eliminando conversación " + req.params.id);
+        gestorChat.eliminarConversacion(criterio_conversacion, function (mensaje) {
+            if (mensaje === null) {
+                res.status(501);
+                res.json({
+                    error: "La conversación a eliminar no se ha encontrado"
+                });
+            } else {
+                res.status(200);
+                console.log("Conversación eliminada correctamente");
+                res.send(JSON.stringify(mensaje));
             }
         });
     });
