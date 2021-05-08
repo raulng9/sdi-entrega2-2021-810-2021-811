@@ -1,2 +1,2 @@
 Segunda entrega para la asignatura SDI, consistente en la creación de una aplicación web de compra/venta similar a Wallapop usando 
-Node.js, además de un sistema de servicios web utilizando REST.
+Node.js, además de un sistema de servicios web utilizando REST e incluyendo un cliente ligero jQuery/AJAX.

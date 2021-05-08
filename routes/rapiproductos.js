@@ -21,8 +21,6 @@ module.exports = function(app, gestorProductos) {
         });
     });
 
-
-
     app.get("/api/productospropios", function(req, res) {
         console.log(req.session.usuario);
         //Para acceder a los productos que vende el usuario
@@ -43,4 +41,5 @@ module.exports = function(app, gestorProductos) {
             }
         });
     });
+
 }

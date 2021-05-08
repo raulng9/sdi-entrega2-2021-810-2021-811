@@ -23,7 +23,7 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav" id="barra-menu">
                 <li><a onclick=mostrarOfertasAPI()>Ofertas disponibles</a></li>
-                <!-- <li><a onclick="mostrarConversaciones()" id="conver">Conversaciones</a></li> -->
+                <li><a onclick="mostrarConversaciones()" id="conver">Conversaciones</a></li>
                 <li><a id="ofertados" onclick=mostrarMisOfertas()>Mis ofertas</a></li>
             </ul>
             <!--
@@ -73,12 +73,10 @@
         contenedorPrincipal.load("widget-login.html");
     }
 
-    /*
+
     function mostrarConversaciones(){
         contenedorPrincipal.load("widget-conversacion.html");
     }
-    */
-
 
     function mostrarMisOfertas() {
         contenedorPrincipal.load("widget-productospropios.html");

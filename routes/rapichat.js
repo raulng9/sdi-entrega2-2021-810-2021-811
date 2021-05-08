@@ -111,11 +111,11 @@ module.exports = function (app, gestorProductos, gestorChat) {
     //Obtener conversación para un producto dado
     app.get("/api/mensajes/:producto", function (req, res) {
         let usuario = req.session.usuario;
-        let producto = req.params.producto;
-
+        var producto = req.params.producto;
         let criterio_producto = {
             _id: gestorProductos.mongo.ObjectID(producto)
         };
+
         gestorProductos.obtenerProductos(criterio_producto, function (productos) {
             if (productos == null) {
                 res.status(500);
@@ -191,4 +191,46 @@ module.exports = function (app, gestorProductos, gestorChat) {
             }
         });
     });
+
+    //Obtener todas las conversaciones en las que el usuario haya tomado parte
+    app.get("/api/conversaciones/interesado", function (req, res) {
+        let usuario = req.session.usuario;
+        //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
+        let criterio_usuario_en_conv = {
+                 "usuario1": usuario
+        };
+        gestorChat.obtenerConversacion(criterio_usuario_en_conv, function (conversaciones) {
+            if (conversaciones === null) {
+                res.status(501);
+                //TODO manejar error y mandar dato de fallo para mostrar en la vista
+                res.json({
+                    error: "El usuario no tiene conversaciones como interesado por el momento"
+                });
+            } else {
+                res.send(JSON.stringify(conversaciones));
+            }
+        });
+    });
+
+    //Obtener todas las conversaciones en las que el usuario haya tomado parte
+    app.get("/api/conversaciones/propietario", function (req, res) {
+        let usuario = req.session.usuario;
+        //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
+        let criterio_usuario_en_conv = {
+                 "usuario2": usuario
+             };
+        gestorChat.obtenerConversacion(criterio_usuario_en_conv, function (conversaciones) {
+            if (conversaciones === null) {
+                res.status(501);
+                //TODO manejar error y mandar dato de fallo para mostrar en la vista
+                res.json({
+                    error: "El usuario no tiene conversaciones como propietario por el momento"
+                });
+            } else {
+                console.log(JSON.stringify(conversaciones));
+                res.send(JSON.stringify(conversaciones));
+            }
+        });
+    });
+
 }

@@ -1,20 +1,35 @@
-<div id="widget-ofertas" >
+<div id="widget-conversaciones" >
+    <h3>Conversaciones como interesado</h3>
     <table class="table table-hover">
         <thead>
         <tr>
-            <th>Cliente</th>
+            <th>Usuario</th>
+            <th>Producto</th>
             <th></th>
         </tr>
         </thead>
         <tbody id="tablaMensajes">
         </tbody>
     </table>
+    <br>
+    <h3>Conversaciones como propietario</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Producto</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody id="tablaMensajesPropietario">
+        </tbody>
+    </table>
 </div>
 
 <script>
-    function cargarConversaciones(){
+    function cargarConversacionesInteresado(){
         $.ajax({
-            url: URLbase + "/mensajes/" + productoSeleccionado,
+            url: URLbase + "/conversaciones/interesado",
             type: "GET",
             data: { },
             dataType: 'json',
@@ -25,30 +40,76 @@
                 actualizarTabla(conversaciones);
             },
             //En fallo volvemos al login o a la tienda?
+            //Mejor mostrar que no hay conversaciones recibidas
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+    function cargarConversacionesPropietario(){
+        $.ajax({
+            url: URLbase + "/conversaciones/propietario",
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token,
+            },
+            success: function(respuesta) {
+                conversaciones = respuesta;
+                actualizarTablaPropietario(conversaciones);
+            },
+            //En fallo volvemos al login o a la tienda?
+            //Mejor mostrar que no hay conversaciones recibidas
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
     }
 
-    cargarConversaciones();
+    cargarConversacionesInteresado();
+    cargarConversacionesPropietario();
 
     function actualizarTabla(conversacionesMostrar){
         $( "#tablaMensajes" ).empty();
         for (i = 0; i < conversacionesMostrar.length; i++) {
             $( "#tablaMensajes" ).append(
                 "<tr id="+conversacionesMostrar[i]._id+">"+
-                "<td>"+conversacionesMostrar[i].usuario1+"</td>" +
+                "<td>"+conversacionesMostrar[i].usuario2+"</td>" +
+                "<td>"+conversacionesMostrar[i].producto+"</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('"+conversacionesMostrar[i]._id+"','" + conversacionesMostrar[i].usuario1 + "')>Chat</a>"+
+                "<a onclick=mostrarChat('"+conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "')>Chat</a>"+
+                "</td>" +
+                "<td>" +
+                "<a onclick=eliminarChat('"+conversacionesMostrar[i]._id +"')>Eliminar chat</a>"+
                 "</td>" +
                 "</tr>" );
         }
     }
 
-    function mostrarChat(conver, usuario1) {
+    function actualizarTablaPropietario(conversacionesMostrar){
+        $( "#tablaMensajesPropietario" ).empty();
+        for (i = 0; i < conversacionesMostrar.length; i++) {
+            $( "#tablaMensajesPropietario" ).append(
+                "<tr id="+conversacionesMostrar[i]._id+">"+
+                "<td>"+conversacionesMostrar[i].usuario1+"</td>" +
+                "<td>"+conversacionesMostrar[i].producto+"</td>" +
+                "<td>" +
+                "<a onclick=mostrarChat('"+conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "')>Chat</a>"+
+                "</td>" +
+                "<td>" +
+                "<a onclick=eliminarChat('"+conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
+                "</td>" +
+                "</tr>" );
+        }
+    }
+
+    function mostrarChat(conver, producto) {
         conversacionSeleccionada = conver;
-        usuario = usuario1;
+        productoSeleccionado = producto;
         $( "#contenedor-principal" ).load( "widget-chat.html" );
+    }
+
+    function eliminarChat(conversacion){
+        console.log("A punto de eliminar chat " + conversacion);
     }
 </script>
