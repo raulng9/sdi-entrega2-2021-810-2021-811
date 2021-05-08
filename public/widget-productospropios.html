@@ -12,6 +12,7 @@
     </table>
 </div>
 <script>
+    window.history.pushState("", "", "/cliente.html?w=productospropios");
     var productosPropios;
     function cargarProductosPropios(){
         $.ajax({
@@ -22,15 +23,15 @@
             headers: { "token": token },
             success: function(respuesta) {
                 productosPropios = respuesta;
-                actualizarTabla(productosPropios);
+                actualizarTablaPropios(productosPropios);
             },
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
     }
-    function actualizarTabla(productosMostrar){
-        $( "#tablaProductosPropios" ).empty(); // Vaciar la tabla
+    function actualizarTablaPropios(productosMostrar){
+        $( "#tablaProductosPropios" ).empty();
         for (i = 0; i < productosMostrar.length; i++) {
             $( "#tablaProductosPropios" ).append(
                 "<tr id="+productosMostrar[i]._id+">"+
@@ -38,15 +39,16 @@
                 "<td>"+productosMostrar[i].descripcion+"</td>" +
                 "<td>"+productosMostrar[i].precio+"</td>" +
                 "<td>" +
-                "<a onclick=mostrarConversaciones('"+productosMostrar[i]._id+"')>Conversaciones del producto</a>"+
+                "<a onclick=mostrarTodasConversaciones('"+productosMostrar[i]._id+"')>Conversaciones del producto</a>"+
                 "</td>" +
                 "</tr>" );
         }
     }
     cargarProductosPropios();
 
-    function mostrarConversaciones(product) {
+    function mostrarTodasConversaciones(product) {
+        console.log("supuesto click");
         productoSeleccionado = product;
-        $( "#contenedor-principal" ).load( "widget-conversacion.html" );
+        $( "#contenedor-principal" ).load( "widget-conversacionproducto.html" );
     }
 </script>

@@ -8,7 +8,7 @@
             <th></th>
         </tr>
         </thead>
-        <tbody id="tablaMensajes">
+        <tbody id="tablaMensajesInteresado">
         </tbody>
     </table>
     <br>
@@ -27,6 +27,7 @@
 </div>
 
 <script>
+    window.history.pushState("", "", "/cliente.html?w=conversaciones");
     function cargarConversacionesInteresado(){
         $.ajax({
             url: URLbase + "/conversaciones/interesado",
@@ -37,7 +38,7 @@
             },
             success: function(respuesta) {
                 conversaciones = respuesta;
-                actualizarTabla(conversaciones);
+                actualizarTablaInteresado(conversaciones);
             },
             //En fallo volvemos al login o a la tienda?
             //Mejor mostrar que no hay conversaciones recibidas
@@ -69,10 +70,10 @@
     cargarConversacionesInteresado();
     cargarConversacionesPropietario();
 
-    function actualizarTabla(conversacionesMostrar){
-        $( "#tablaMensajes" ).empty();
+    function actualizarTablaInteresado(conversacionesMostrar){
+        $( "#tablaMensajesInteresado" ).empty();
         for (i = 0; i < conversacionesMostrar.length; i++) {
-            $( "#tablaMensajes" ).append(
+            $( "#tablaMensajesInteresado" ).append(
                 "<tr id="+conversacionesMostrar[i]._id+">"+
                 "<td>"+conversacionesMostrar[i].usuario2+"</td>" +
                 "<td>"+conversacionesMostrar[i].producto+"</td>" +

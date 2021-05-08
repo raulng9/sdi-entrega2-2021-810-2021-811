@@ -46,10 +46,9 @@
 
     let contenedorPrincipal = $("#contenedor-principal");
 
-    //Por ahora login por defecto
+    //Por ahora envío al login por defecto
     mostrarLogin();
 
-    //En caso de token válido se envía al usuario directo a las ofertas disponibles
     if ( Cookies.get('token') !== null ){
         token = Cookies.get('token');
         let url = new URL(window.location.href);
@@ -62,6 +61,14 @@
         }
         if(w === "chat"){
             contenedorPrincipal.load("widget-chat.html");
+        }
+
+        if(w === "conversaciones"){
+            contenedorPrincipal.load("widget-conversacion.html");
+        }
+
+        if(w === "productospropios"){
+            contenedorPrincipal.load("widget-productospropios.html");
         }
     }
 

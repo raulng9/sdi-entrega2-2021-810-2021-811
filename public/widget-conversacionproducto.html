@@ -1,0 +1,74 @@
+<div id="widget-conversaciones" >
+    <h3>Conversaciones del producto</h3>
+    <table class="table table-hover" id="tablaMainMensajes">
+        <thead>
+        <tr>
+            <th>Usuario</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody id="tablaMensajes">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function cargarConversacionesProducto(){
+        console.log("ahora sí q sí");
+        $.ajax({
+            url: URLbase + "/mensajes/" + productoSeleccionado,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: { "token": token,
+            },
+            success: function(respuesta) {
+                conversaciones = respuesta;
+                actualizarTabla(conversaciones);
+            },
+            //En fallo volvemos al login o a la tienda?
+            //Mejor mostrar que no hay conversaciones recibidas
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+
+    cargarConversacionesProducto();
+
+    function actualizarTabla(conversacionesMostrar){
+        if(conversacionesMostrar.length === 0){
+            $( "#tablaMainMensajes" ).remove();
+            $( "#widget-conversaciones" ).empty();
+            $( "#widget-conversaciones" ).append(
+                "<h4>"+
+                "<p>No tienes conversaciones relaccionadas con este producto</p>" +
+                "</h4>" );
+        }else {
+            $( "#tablaMensajes" ).empty();
+            for (i = 0; i < conversacionesMostrar.length; i++) {
+                $("#tablaMensajes").append(
+                    "<tr id=" + conversacionesMostrar[i]._id + ">" +
+                    "<td>" + conversacionesMostrar[i].usuario1 + "</td>" +
+                    "<td>" + conversacionesMostrar[i].producto + "</td>" +
+                    "<td>" +
+                    "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "')>Chat</a>" +
+                    "</td>" +
+                    "<td>" +
+                    "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>" +
+                    "</td>" +
+                    "</tr>");
+            }
+        }
+    }
+
+    function mostrarChat(conver, producto) {
+        conversacionSeleccionada = conver;
+        productoSeleccionado = producto;
+        $( "#contenedor-principal" ).load( "widget-chat.html" );
+    }
+
+    function eliminarChat(conversacion){
+        console.log("A punto de eliminar la conversación " + conversacion);
+    }
+</script>
