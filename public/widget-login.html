@@ -22,24 +22,32 @@
 </div>
 
 <script>
+    window.history.pushState("", "", "/cliente.html?w=login");
     $("#boton-login").click(function(){
-        $.ajax({
-            url: URLbase + "/autenticar",
-            type: "POST",
-            data: {
-                email : $("#email").val(),
-                password : $("#password").val()
-            },
-            dataType: 'json',
-            success: function(respuesta) {
-                token = respuesta.token;
-                $( "#contenedor-principal" ).load( "widget-oferta.html");
-            },
-            error : function (error){
-                $("#widget-login" )
-                    .prepend("<div class='alert alert-danger'>Error al introducir las credenciales</div>");
-            }
-        });
+        if ($("#email").val() === "" || $("#password").val() === "") {
+           console.log("Error de login, uno o más campos están vacíos");
+           //TODO crear panel de error
+        }else {
+            $.ajax({
+                url: URLbase + "/autenticar",
+                type: "POST",
+                data: {
+                    email: $("#email").val(),
+                    password: $("#password").val()
+                },
+                dataType: 'json',
+                success: function (respuesta) {
+                    token = respuesta.token;
+                    Cookies.set('token', respuesta.token);
+                    $("#contenedor-principal").load("widget-oferta.html");
+                },
+                error: function (error) {
+                    Cookies.remove('token');
+                    $("#widget-login")
+                        .prepend("<div class='alert alert-danger'>Error al introducir las credenciales</div>");
+                }
+            });
+        }
     });
 </script>
 

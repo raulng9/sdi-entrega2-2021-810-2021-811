@@ -24,10 +24,12 @@ module.exports = function(app, gestorProductos) {
 
 
     app.get("/api/productospropios", function(req, res) {
+        console.log(req.session.usuario);
         //Para acceder a los productos que vende el usuario
         let criterio = {
-            propietario : res.usuario
+            propietario : req.session.usuario
         };
+        console.log("Buscando productos del usuario " + [req.session.usuario]);
         gestorProductos.obtenerProductos( criterio, function(productos) {
             if (productos == null) {
                 res.status(500);
@@ -36,6 +38,7 @@ module.exports = function(app, gestorProductos) {
                 })
             } else {
                 res.status(200);
+                console.log(JSON.stringify(productos));
                 res.send( JSON.stringify(productos) );
             }
         });

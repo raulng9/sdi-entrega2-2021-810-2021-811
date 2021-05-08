@@ -12,7 +12,7 @@
     </table>
 </div>
 <script>
-    let productosPropios;
+    var productosPropios;
     function cargarProductosPropios(){
         $.ajax({
             url: URLbase + "/productospropios",
@@ -22,6 +22,8 @@
             headers: { "token": token },
             success: function(respuesta) {
                 productosPropios = respuesta;
+                console.log("obtenidos productos propios");
+                console.log(respuesta);
                 actualizarTabla(productosPropios);
             },
             error : function (error){

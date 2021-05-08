@@ -7,7 +7,6 @@ module.exports = function(app, gestorUsuarios) {
             email : req.body.email,
             password : seguro
         };
-
         gestorUsuarios.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 res.status(401);

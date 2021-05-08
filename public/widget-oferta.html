@@ -14,7 +14,8 @@
     </table>
 </div>
 <script>
-    let productos;
+    window.history.pushState("", "", "/cliente.html?w=ofertas");
+    var productos;
     function cargarProductos() {
         $.ajax({
             url: URLbase + "/ofertas",
@@ -27,7 +28,7 @@
                 actualizarTabla(productos);
             },
             error: function (error) {
-                console.log("Error");
+                console.log("Error al hacer retrieve de las ofertas");
             }
         });
     }
@@ -40,6 +41,7 @@
                 "<td>" + productosMostrar[i].nombre + "</td>" +
                 "<td>" + productosMostrar[i].descripcion + "</td>" +
                 "<td>" + productosMostrar[i].precio + "</td>" +
+                "<td>" + productosMostrar[i].fecha + "</td>" +
                 "<td>" + productosMostrar[i].propietario + "</td>" +
                 "<td>" +
                 "<a onclick=mostrarChat('" + productosMostrar[i]._id + "')>Chatear</a>" +
@@ -51,8 +53,9 @@
     cargarProductos();
 
     function mostrarChat(product) {
+        //Cargamos el chat específico para el producto dado
         productoSeleccionado = product;
-        converSeleccionada = null;
+        conversacionSeleccionada = null;
         usuario = null;
         $("#contenedor-principal").load("widget-chat.html");
     }

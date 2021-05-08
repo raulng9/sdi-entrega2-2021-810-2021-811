@@ -14,6 +14,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                         error: "Se ha producido un error al obtener los productos de la BBDD"
                     });
                 }
+                //Obtenemos los detalles para buscar la conversación en la BBDD
                 let propietario = productos[0].propietario;
                 let texto = req.body.texto;
                 let id_producto = productos[0]._id.toString();
@@ -32,6 +33,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     //Envío correcto a priori
                     if (usuario === propietario && typeof req.body.recep !== 'undefined') {
                         let receptor = req.body.recep;
+                        //Criterio general para la conv. (para crear o para buscar)
                         criterio_conversacion = {
                             "usuario1": receptor,
                             "usuario2": propietario,
@@ -69,7 +71,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                 }
                             });
                         } else {
-                            //Nueva conversación, se inserta y luego el mensaje en ella
+                            //Nueva conversación, se crea y luego se inserta el mensaje en ella
                             gestorChat.insertarConversacion(criterio_conversacion, function (conversacion) {
                                 if (conversacion == null) {
                                     res.status(500); // Unauthorized
@@ -107,7 +109,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
     );
 
     //Obtener conversación para un producto dado
-    app.get("/api/mensaje/:producto", function (req, res) {
+    app.get("/api/mensajes/:producto", function (req, res) {
         let usuario = req.session.usuario;
         let producto = req.params.producto;
 

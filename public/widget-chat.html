@@ -1,11 +1,11 @@
 <div id="widget-chat" >
-    <h2 id="titulo">Lista de tus mensajes:</h2>
+    <h2 id="titulo">Conversación para la oferta:</h2>
     <table class="table table-hover">
         <thead>
         <tr>
             <th>Autor</th>
             <th>Fecha</th>
-            <th>Mensaje</th>
+            <th>Contenido</th>
             <th>Leído</th>
             <th class="col-md-1"></th>
         </tr>
@@ -16,7 +16,7 @@
 </div>
 <div>
     <input type="text" class="form-control"
-           placeholder="Escribe aquí tu mensaje" id="enviar_mensaje" name="mensaje"/>
+           placeholder="Escribe aquí tu mensaje" id="textomensaje" name="mensaje"/>
     <span class="input-group-btn">
              <button class="btn btn-primary" onclick="enviarMensaje()">Enviar</button>
         </span>
@@ -25,12 +25,12 @@
 <script>
     function cargarMensajes() {
         $.ajax({
-            url : URLbase + "/leermensajes/" + productoSeleccionado,
+            url : URLbase + "/mensajes/" + productoSeleccionado,
             type : "GET",
             dataType : 'json',
             headers : {
                 "token" : token,
-                "conversacion" : converSeleccionada
+                "conversacion" : conversacionSeleccionada
             },
             success : function(respuesta) {
                 actualizarTabla(respuesta);
@@ -59,16 +59,17 @@
             type: "POST",
             data: {
                 producto: productoSeleccionado,
-                texto: $("#enviar_mensaje").val(),
+                texto: $("#textomensaje").val(),
                 recep : usuario
             },
             dataType: 'json',
             headers: {
                 "token": token
             },
+            //Después de enviar, refrescar para mostrar y limpiar el input
             success: function (respuesta) {
                 cargarMensajes();
-                $("#enviar_mensaje").val('');
+                $("#textomensaje").val('');
             },
             error: function (error) {
                 $("#contenedor-principal").load("widget-login.html");
@@ -76,6 +77,7 @@
         });
     }
 
+    //Refresco cada segundo según guion (falta testear)
     setInterval(function() {
         if( $("#titulo").is(":visible")){
             cargarMensajes();

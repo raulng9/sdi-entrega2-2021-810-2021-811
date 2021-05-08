@@ -14,7 +14,7 @@
 <script>
     function cargarConversaciones(){
         $.ajax({
-            url: URLbase + "/mensaje/" + productoSeleccionado,
+            url: URLbase + "/mensajes/" + productoSeleccionado,
             type: "GET",
             data: { },
             dataType: 'json',
@@ -24,7 +24,7 @@
                 conversaciones = respuesta;
                 actualizarTabla(conversaciones);
             },
-            //En fallo volvemos al login? o quizás a la tienda
+            //En fallo volvemos al login o a la tienda?
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
