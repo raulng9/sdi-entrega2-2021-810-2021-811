@@ -39,6 +39,7 @@
                 success: function (respuesta) {
                     token = respuesta.token;
                     Cookies.set('token', respuesta.token);
+                    Cookies.set('usuario', $("#email").val());
                     $("#contenedor-principal").load("widget-oferta.html");
                 },
                 error: function (error) {
@@ -50,4 +51,3 @@
         }
     });
 </script>
-

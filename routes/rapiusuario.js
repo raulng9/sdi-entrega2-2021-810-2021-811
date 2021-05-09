@@ -1,12 +1,14 @@
 module.exports = function(app, gestorUsuarios) {
 
     app.post("/api/autenticar", function(req, res) {
+
         let seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
         let criterio = {
             email : req.body.email,
             password : seguro
         };
+
         gestorUsuarios.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 res.status(401);

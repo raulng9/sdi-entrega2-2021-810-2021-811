@@ -1,6 +1,7 @@
 module.exports = function (app, gestorProductos, gestorChat) {
 
     app.post("/api/enviarmensaje", function (req, res) {
+            console.log("enviando mensaje del usuario " + req.session.usuario + " al producto " + req.body.producto);
             let date = new Date();
             let usuario = req.session.usuario;
             let producto = req.body.producto;
@@ -71,7 +72,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                 }
                             });
                         } else {
-                            //Nueva conversación, se crea y luego se inserta el mensaje en ella
+                            //Nueva conversación, se crea y luego se inserta en ella el mensaje
                             gestorChat.insertarConversacion(criterio_conversacion, function (conversacion) {
                                 if (conversacion == null) {
                                     res.status(500); // Unauthorized
@@ -110,12 +111,12 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
     //Obtener conversación para un producto dado
     app.get("/api/mensajes/:producto", function (req, res) {
+        console.log("obteniendo las conversaciones para el producto " + req.session.producto);
         let usuario = req.session.usuario;
         var producto = req.params.producto;
         let criterio_producto = {
             _id: gestorProductos.mongo.ObjectID(producto)
         };
-
         gestorProductos.obtenerProductos(criterio_producto, function (productos) {
             if (productos == null) {
                 res.status(500);
@@ -194,6 +195,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
     //Obtener todas las conversaciones en las que el usuario haya tomado parte
     app.get("/api/conversaciones/interesado", function (req, res) {
+        console.log("obteniendo las conversaciones como interesado para el usuario " + req.session.usuario);
         let usuario = req.session.usuario;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
         let criterio_usuario_en_conv = {
@@ -214,6 +216,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
     //Obtener todas las conversaciones en las que el usuario haya tomado parte
     app.get("/api/conversaciones/propietario", function (req, res) {
+        console.log("obteniendo las conversaciones como propietario para el usuario " + req.session.usuario);
         let usuario = req.session.usuario;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
         let criterio_usuario_en_conv = {
@@ -235,6 +238,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
     //Obtener todos los mensajes de una conversación dada
     app.get("/api/mensajes/conv/:conversacion", function (req, res) {
+        console.log("obteniendo los mensajes de la conversación " + req.params.conversacion);
         var conversacion = req.params.conversacion;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
         console.log("buscando mensajes de la conversación " + conversacion);
@@ -275,6 +279,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
     app.get("/api/mensajes/eliminar/:id", function (req, res) {
         console.log("eliminando mensaje " + req.params.id);
         let criterio_mensaje = {"_id": gestorChat.mongo.ObjectID(req.params.id)};
+        //TODO comprobar que es propietario el usuario que elimina con el token
         gestorChat.eliminarMensaje(criterio_mensaje, function (mensaje) {
             if (mensaje === null) {
                 res.status(501);
@@ -283,7 +288,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                 });
             } else {
                 res.status(200);
-                console.log("a eliminar mensaje");
+                console.log("El mensaje " + req.params.id + " se eliminó con éxito");
                 res.send(JSON.stringify(mensaje));
             }
         });
@@ -293,6 +298,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
     app.get("/api/conversaciones/eliminar/:id", function (req, res) {
         let criterio_conversacion = {"_id": gestorChat.mongo.ObjectID(req.params.id)};
         console.log("eliminando conversación " + req.params.id);
+        //TODO comprobar que es propietario el usuario que elimina con el token
         gestorChat.eliminarConversacion(criterio_conversacion, function (mensaje) {
             if (mensaje === null) {
                 res.status(501);
@@ -307,4 +313,67 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
     });
 
-}
+    app.put("/api/mensajes/marcarleido/:id", function(req, res) {
+        console.log("marcando como leído mensaje " + req.params.id);
+        let criterio_mensaje = {
+            "_id": gestorChat.mongo.ObjectID(req.params.id)
+        };
+        //Primero obtenemos el mensaje del id, luego la conversación para ver si el usuario puede ser una de las
+        //dos partes (interesado o propietario) y luego se cambia el estado de lectura
+        gestorChat.obtenerMensajes(criterio_mensaje, function (mensajes) {
+            if (mensajes == null) {
+                res.status(500);
+                res.json({
+                    error: "El mensaje para marcar como leído no se ha encontrado"
+                })
+            } else {
+                if (mensajes.length > 0) {
+                    //Solo cambiamos si el usuario es propietario o interesado
+                    let criterio_conv = {
+                        "_id": mensajes[0].conversacion, $or:
+                            [{"usuario1": app.get("jwt").verify(req.headers.token, 'secreto').usuario},
+                                {"usuario2": app.get("jwt").verify(req.headers.token, 'secreto').usuario}]
+                    };
+                    gestorChat.obtenerConversacion(criterio_conv, function (conversaciones) {
+                        if (conversaciones == null) {
+                            res.status(500);
+                            res.json({
+                                error: "Se produjo un error al buscar la conversación a la que pertenece el mensaje"
+                            })
+                        } else {
+                            //Si el usuario no es el emisor del mensaje se cambia el estado de lectura
+                            if (conversaciones.length > 0 && mensajes[0].emisor !== app.get("jwt").verify(req.headers.token, 'secreto').usuario) {
+                                //Cambiamos aquí
+                                let mensaje_leido = {"leido": true};
+                                gestorChat.cambiarEstadoMensaje(criterio_mensaje, mensaje_leido, function (result) {
+                                    if (result == null) {
+                                        res.status(500);
+                                        res.json({
+                                            error: "Se produjo un error al marcar el mensaje como leído"
+                                        })
+                                    } else {
+                                        res.status(200);
+                                        res.json({
+                                            mensaje: "Mensaje marcado como leído correctamente",
+                                            _id: req.params.id
+                                        })
+                                    }
+                                });
+                            } else {
+                                res.status(200);
+                                res.json({
+                                    error: "El mensaje no puede ser marcado como leído por este usuario"
+                                })
+                            }
+                        }
+                    });
+                } else {
+                    res.status(500);
+                    res.json({
+                        error: "Se produjo un error al buscar el mensaje a marcar como leído"
+                    })
+                }
+            }
+        });
+        });
+    }

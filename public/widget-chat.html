@@ -1,18 +1,7 @@
-<div id="widget-chat" >
+<div id="widget-chat">
     <h2 id="titulo">Chat de la oferta:</h2>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>Autor</th>
-            <th>Fecha</th>
-            <th>Mensaje</th>
-            <th>Leído</th>
-            <th class="col-md-1"></th>
-        </tr>
-        </thead>
-        <tbody id="tablaCuerpoChat">
-        </tbody>
-    </table>
+    <div id="chat-container">
+    </div>
 </div>
 <div>
     <input type="text" class="form-control"
@@ -33,16 +22,31 @@
                 "conversacion" : conversacionSeleccionada
             },
             success : function(respuesta) {
-                actualizarTabla(respuesta);
+                actualizarMensajesChat(respuesta);
             },
             error : function(error) {
                 console.log("Error al cargar los mensajes");
             }
         });
     }
-    function actualizarTabla(mensajesMostrar) {
+    function actualizarMensajesChat(mensajesMostrar) {
+        let codigoTabla = "";
+        $("#chat-container").empty();
+        for(let i = 0; i < mensajesMostrar.length; i++){
+            // Comprobamos si somos autor, entonces no hay que marcar como leído
+            if(Cookies.get('usuario') === mensajesMostrar[i].emisor && !mensajesMostrar[i].leido){
+                codigoTabla += "<h4 class='mensaje_propio_no_leido'>"+ mensajesMostrar[i].texto +"</h4><br>";
+            }
+            else if(Cookies.get('usuario') === mensajesMostrar[i].emisor && mensajesMostrar[i].leido) {
+                codigoTabla += "<h4 class='mensaje_propio_leido'>"+ mensajesMostrar[i].texto +"<span>&#10003;</span></h4><br>";
+            }else if(Cookies.get('usuario') !== mensajesMostrar[i].emisor && !mensajesMostrar[i].leido){
+                marcarMensajeComoLeido(mensajesMostrar[i]._id);
+                codigoTabla += "<h4 class='mensaje_otro'>"+ mensajesMostrar[i].texto +"</h4><br>";
+            }
+        }
+        /*
         $("#tablaCuerpoChat").empty();
-        for (i = 0; i < mensajesMostrar.length; i++) {
+        for (let i = 0; i < mensajesMostrar.length; i++) {
             $("#tablaCuerpoChat").append(
                 "<tr id="+mensajesMostrar[i]._id+">" + "<td>"
                 + mensajesMostrar[i].emisor + "</td>" + "<td>"
@@ -51,6 +55,8 @@
                 + mensajesMostrar[i].leido + "</td>" + "<td>" +
                 "</tr>");
         }
+        */
+        $("#chat-container").append(codigoTabla);
     }
 
     function enviarMensaje() {
@@ -60,7 +66,7 @@
             data: {
                 producto: productoSeleccionado,
                 texto: $("#textomensaje").val(),
-                recep : usuario
+                recep : Cookies.get('usuario')
             },
             dataType: 'json',
             headers: {
@@ -83,4 +89,22 @@
             cargarMensajes();
         }
     }, 1000);
+
+
+
+    function marcarMensajeComoLeido(mensajeMarcar) {
+        $.ajax({
+            url: URLbase + "/mensajes/marcarleido/" + mensajeMarcar,
+            type: "PUT",
+            headers: {"token": token},
+            dataType: 'json',
+            success: function (respuesta) {
+                console.log(respuesta);
+                console.log("mensaje " + mensajeMarcar + " marcado como leído correctamente");
+            },
+            error: function (error) {
+                $("#contenedor-principal").load("widget-login.html");
+            }
+        });
+    }
 </script>
