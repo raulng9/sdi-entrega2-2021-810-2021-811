@@ -237,7 +237,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
     app.get("/api/mensajes/conv/:conversacion", function (req, res) {
         var conversacion = req.params.conversacion;
         //En este caso basta con que el usuario esté involucrado en la conversación, sin importar el rol
-
+        console.log("buscando mensajes de la conversación " + conversacion);
         let criterio_conversacion = {
             "_id": gestorChat.mongo.ObjectID(conversacion)
         };
