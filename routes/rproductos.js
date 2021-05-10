@@ -222,50 +222,43 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             "_id": productoId
         };
         gestorProductos.obtenerProductos(productoId, function (productos) {
-            if (productos == null || productos.length == 0)
-                res.send("Error al encontrar producto");
-            else {
-                validarSaldo(20, usuario.saldo, function (err) {
-                    if (err !== null && err.length > 0) {
-                        res.redirect("/publicaciones/list?mensaje=" + err +
-                            "&tipoMensaje=alert-danger ");
-                    } else {
-                        let producto = productos[0];
-                        console.log(producto);
-                        producto.destacada = true;
-                        console.log(producto);
-                        gestorProductos.modificarProducto(criterio_producto, producto, function (result) {
-                            if (result == null)
-                                res.send("Error al modificar oferta");
-                            else {
-                                var criterio_usuario = {
-                                    email: req.session.usuario
-                                };
-                                gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
-                                    if (20 > usuarios[0].saldo) {
-                                        res.redirect("/publicaciones?mensaje=No posee suficiente saldo");
-                                    } else {
-                                        var actualizacion_usuario = {
-                                            saldo: usuarios[0].saldo - 20
-                                        };
-                                        req.session.saldo = usuarios[0].saldo - 20;
-                                        gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
-                                                if (users == null)
-                                                    res.redirect("/publicaciones?mensaje=Ha ocurrido un error");
-                                                else
-                                                    res.redirect("/publicaciones");
-                                            }
-                                        );
-                                    }
-                                });
-                            }
+                if (productos == null || productos.length == 0)
+                    res.send("Error al encontrar producto");
+                else {
+                    let producto = productos[0];
+                    console.log(producto);
+                    producto.destacada = true;
+                    console.log(producto);
+                    gestorProductos.modificarProducto(criterio_producto, producto, function (result) {
+                        if (result == null)
+                            res.send("Error al modificar oferta");
+                        else {
+                            var criterio_usuario = {
+                                email: req.session.usuario
+                            };
+                            gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
+                                if (20 > usuarios[0].saldo) {
+                                    res.redirect("/publicaciones?mensaje=No posee suficiente saldo");
+                                } else {
+                                    var actualizacion_usuario = {
+                                        saldo: usuarios[0].saldo - 20
+                                    };
+                                    req.session.saldo = usuarios[0].saldo - 20;
+                                    gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
+                                            if (users == null)
+                                                res.redirect("/publicaciones?mensaje=Ha ocurrido un error");
+                                            else
+                                                res.redirect("/publicaciones");
+                                        }
+                                    );
+                                }
+                            });
+                        }
 
-                        });
-                    }
-                });
+                    });
+                }
             }
-        });
+        );
 
     });
-}
-;
+};
