@@ -2,33 +2,62 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
 
     //Post con los datos para añadir un producto a la tienda
     app.post("/producto", function (req, res) {
+        let usuario = req.session.usuario;
+        console.log(usuario);
         if (req.body.nombre === '' || req.body.descripcion === '' || req.body.precio === '') {
             res.send("Error en los datos del producto");
-        } else if(req.body.nombre.length <= 2){
+        } else if (req.body.nombre.length <= 2) {
             res.redirect("/producto/agregar?mensaje=Nombre demasiado corto" + "&tipoMensaje=alert-danger")
-        }else if(req.body.precio <= 0){
+        } else if (req.body.precio <= 0) {
             res.redirect("/producto/agregar?mensaje=El precio no puede ser negativo ni cero" + "&tipoMensaje=alert-danger")
-        }
-        else {
+        } else {
             let productoParaInsertar = {
                 nombre: req.body.nombre,
                 descripcion: req.body.descripcion,
                 precio: req.body.precio,
                 fecha: new Date(),
                 propietario: req.session.usuario,
-                comprador: null
+                comprador: null,
+                destacada: false
             };
+            if (req.body.destacarProducto === "destacarProducto") {
+                productoParaInsertar.destacada = true;
+            }
             gestorProductos.insertarProducto(productoParaInsertar, function (id) {
-                if (id == null) {
-                    res.send("Error al añadir el producto");
-                } else {
-                    res.redirect("/publicaciones");
+                    if (id == null) {
+                        res.send("Error al añadir el producto");
+                    } else {
+                        if (productoParaInsertar.destacada) {
+                            var criterio_usuario = {
+                                email: req.session.usuario
+                            };
+                            gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
+                                if (20 > usuarios[0].saldo) {
+                                    res.redirect("/producto/agregar?mensaje=No posee suficiente saldo");
+                                } else {
+                                    var actualizacion_usuario = {
+                                        saldo: usuarios[0].saldo - 20
+                                    };
+                                    req.session.saldo = usuarios[0].saldo - 20;
+                                    gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
+                                            if (users == null)
+                                                res.redirect("/producto/agregar?mensaje=Ha ocurrido un error");
+                                            else
+                                                res.redirect("/publicaciones");
+                                        }
+                                    );
+                                }
+                            });
+                        } else {
+                            res.redirect("/publicaciones");
+                        }
+                    }
                 }
-            });
+            );
         }
     });
 
-    //Get para el insertado de producto en la tienda
+//Get para el insertado de producto en la tienda
     app.get('/producto/agregar', function (req, res) {
         let respuesta = swig.renderFile('views/bagregar.html', {
             usuario: req.session.usuario,
@@ -37,7 +66,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         res.send(respuesta);
     });
 
-    //Vista general con todos los productos de la tienda (excluir propios?)
+//Vista general con todos los productos de la tienda (excluir propios?)
     app.get("/tienda", function (req, res) {
         let criterio = {};
         if (req.query.busqueda != null) {
@@ -81,7 +110,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-    //Get para las ofertas propias del usuario
+//Get para las ofertas propias del usuario
     app.get("/publicaciones", function (req, res) {
         let criterio = {propietario: req.session.usuario};
         gestorProductos.obtenerProductos(criterio, function (productos) {
@@ -99,7 +128,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-    //Get para eliminar un producto de la BBDD
+//Get para eliminar un producto de la BBDD
     app.get('/producto/eliminar/:id', function (req, res) {
         let criterio = {"_id": gestorProductos.mongo.ObjectID(req.params.id)};
         gestorProductos.eliminarProducto(criterio, function (productos) {
@@ -111,7 +140,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-    //Comprar producto
+//Comprar producto
     app.get('/producto/comprar/:id', function (req, res) {
         var productoId = gestorProductos.mongo.ObjectID(req.params.id);
         var criterio = {
@@ -159,7 +188,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-    //Obtener compras propias del usuario y enviar a vista
+//Obtener compras propias del usuario y enviar a vista
     app.get('/compras', function (req, res) {
         let criterio = {"comprador": req.session.usuario};
         gestorProductos.obtenerProductos(criterio, function (productos) {
@@ -176,4 +205,67 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             }
         });
     });
-};
+
+    function validarSaldo(dinero, dineroUsuario, functionCallback) {
+        let errors = new Array();
+        if (dinero > dineroUsuario)
+            errors.push("No posee suficiente saldo");
+        if (errors.length <= 0)
+            functionCallback(null);
+        else
+            functionCallback(errors);
+    }
+
+    app.get('/producto/destacar/:id', function (req, res) {
+        var productoId = gestorProductos.mongo.ObjectID(req.params.id);
+        var criterio_producto = {
+            "_id": productoId
+        };
+        gestorProductos.obtenerProductos(productoId, function (productos) {
+            if (productos == null || productos.length == 0)
+                res.send("Error al encontrar producto");
+            else {
+                validarSaldo(20, usuario.saldo, function (err) {
+                    if (err !== null && err.length > 0) {
+                        res.redirect("/publicaciones/list?mensaje=" + err +
+                            "&tipoMensaje=alert-danger ");
+                    } else {
+                        let producto = productos[0];
+                        console.log(producto);
+                        producto.destacada = true;
+                        console.log(producto);
+                        gestorProductos.modificarProducto(criterio_producto, producto, function (result) {
+                            if (result == null)
+                                res.send("Error al modificar oferta");
+                            else {
+                                var criterio_usuario = {
+                                    email: req.session.usuario
+                                };
+                                gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
+                                    if (20 > usuarios[0].saldo) {
+                                        res.redirect("/publicaciones?mensaje=No posee suficiente saldo");
+                                    } else {
+                                        var actualizacion_usuario = {
+                                            saldo: usuarios[0].saldo - 20
+                                        };
+                                        req.session.saldo = usuarios[0].saldo - 20;
+                                        gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
+                                                if (users == null)
+                                                    res.redirect("/publicaciones?mensaje=Ha ocurrido un error");
+                                                else
+                                                    res.redirect("/publicaciones");
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+
+                        });
+                    }
+                });
+            }
+        });
+
+    });
+}
+;
