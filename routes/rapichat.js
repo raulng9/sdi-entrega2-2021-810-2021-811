@@ -111,7 +111,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
     //Obtener conversación para un producto dado
     app.get("/api/mensajes/:producto", function (req, res) {
-        console.log("obteniendo las conversaciones para el producto " + req.session.producto);
+        console.log("obteniendo las conversaciones para el producto " + req.params.producto);
         let usuario = req.session.usuario;
         var producto = req.params.producto;
         let criterio_producto = {

@@ -30,6 +30,7 @@
         });
     }
     function actualizarMensajesChat(mensajesMostrar) {
+
         let codigoTabla = "";
         $("#chat-container").empty();
         for(let i = 0; i < mensajesMostrar.length; i++){
@@ -44,7 +45,8 @@
                 codigoTabla += "<h4 class='mensaje_otro'>"+ mensajesMostrar[i].texto +"</h4><br>";
             }
         }
-        /*
+
+/*
         $("#tablaCuerpoChat").empty();
         for (let i = 0; i < mensajesMostrar.length; i++) {
             $("#tablaCuerpoChat").append(
@@ -55,7 +57,7 @@
                 + mensajesMostrar[i].leido + "</td>" + "<td>" +
                 "</tr>");
         }
-        */
+*/
         $("#chat-container").append(codigoTabla);
     }
 
