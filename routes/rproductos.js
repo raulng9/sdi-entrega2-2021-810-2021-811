@@ -33,7 +33,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                             };
                             gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                                 if (20 > usuarios[0].saldo) {
-                                    res.redirect("/producto/agregar?mensaje=No posee suficiente saldo");
+                                    res.redirect("/producto/agregar?mensaje=No posee suficiente saldo"+ "&tipoMensaje=alert-danger");
                                 } else {
                                     var actualizacion_usuario = {
                                         saldo: usuarios[0].saldo - 20
@@ -41,7 +41,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                     req.session.saldo = usuarios[0].saldo - 20;
                                     gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
                                             if (users == null)
-                                                res.redirect("/producto/agregar?mensaje=Ha ocurrido un error");
+                                                res.redirect("/producto/agregar?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
                                             else
                                                 res.redirect("/publicaciones");
                                         }
@@ -131,11 +131,19 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
 //Get para eliminar un producto de la BBDD
     app.get('/producto/eliminar/:id', function (req, res) {
         let criterio = {"_id": gestorProductos.mongo.ObjectID(req.params.id)};
-        gestorProductos.eliminarProducto(criterio, function (productos) {
-            if (productos == null) {
-                res.send(respuesta);
-            } else {
-                res.redirect("/publicaciones");
+        gestorProductos.obtenerProductos(criterio, function (productoss) {
+            if (productoss[0].propietario != req.session.usuario){
+                res.redirect("/publicaciones?mensaje=No eres el propietario de la oferta"+ "&tipoMensaje=alert-danger");
+            } else if(productoss[0].comprador != null) {
+                res.redirect("/publicaciones?mensaje=Esta oferta ya ha sido comprada"+ "&tipoMensaje=alert-danger");
+            }else{
+                gestorProductos.eliminarProducto(criterio, function (productos) {
+                    if (productos == null) {
+                        res.redirect("/publicaciones?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
+                    } else {
+                        res.redirect("/publicaciones");
+                    }
+                });
             }
         });
     });
@@ -151,19 +159,19 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         };
         gestorProductos.obtenerProductos(criterio, function (productos) {
             if (productos == null) {
-                res.redirect("/tienda?mensaje=Ha ocurrido un error");
+                res.redirect("/tienda?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
             } else {
                 var criterio_usuario = {
                     email: req.session.usuario
                 };
                 gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                         if (productos[0].precio > usuarios[0].saldo) {
-                            res.redirect("/tienda?mensaje=No posee suficiente saldo");
+                            res.redirect("/tienda?mensaje=No posee suficiente saldo"+ "&tipoMensaje=alert-danger");
                         } else {
                             if (productos[0].propietario !== req.session.usuario && productos[0].comprador == null) {
                                 gestorProductos.modificarProducto(criterio, producto, function (idCompra) {
                                     if (idCompra == null) {
-                                        res.redirect("/tienda?mensaje=Ha ocurrido un error");
+                                        res.redirect("/tienda?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
                                     } else {
                                         var actualizacion_usuario = {
                                             saldo: usuarios[0].saldo - productos[0].precio
@@ -171,7 +179,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                         req.session.saldo = usuarios[0].saldo - productos[0].precio;
                                         gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
                                                 if (users == null)
-                                                    res.redirect("/tienda?mensaje=Ha ocurrido un error");
+                                                    res.redirect("/tienda?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
                                                 else
                                                     res.redirect("/compras");
                                             }
@@ -179,7 +187,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                     }
                                 });
                             } else {
-                                res.redirect("/tienda?mensaje=Ha ocurrido un error");
+                                res.redirect("/tienda?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
                             }
                         }
                     }
@@ -206,16 +214,6 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-    function validarSaldo(dinero, dineroUsuario, functionCallback) {
-        let errors = new Array();
-        if (dinero > dineroUsuario)
-            errors.push("No posee suficiente saldo");
-        if (errors.length <= 0)
-            functionCallback(null);
-        else
-            functionCallback(errors);
-    }
-
     app.get('/producto/destacar/:id', function (req, res) {
         var productoId = gestorProductos.mongo.ObjectID(req.params.id);
         var criterio_producto = {
@@ -238,7 +236,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                             };
                             gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                                 if (20 > usuarios[0].saldo) {
-                                    res.redirect("/publicaciones?mensaje=No posee suficiente saldo");
+                                    res.redirect("/publicaciones?mensaje=No posee suficiente saldo"+ "&tipoMensaje=alert-danger");
                                 } else {
                                     var actualizacion_usuario = {
                                         saldo: usuarios[0].saldo - 20
@@ -246,7 +244,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                     req.session.saldo = usuarios[0].saldo - 20;
                                     gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
                                             if (users == null)
-                                                res.redirect("/publicaciones?mensaje=Ha ocurrido un error");
+                                                res.redirect("/publicaciones?mensaje=Ha ocurrido un error"+ "&tipoMensaje=alert-danger");
                                             else
                                                 res.redirect("/publicaciones");
                                         }

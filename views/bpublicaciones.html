@@ -21,8 +21,14 @@
             <td>{{ producto.descripcion }}</td>
             <td>{{ producto.precio }} (€)</td>
             <td>
+                {% if producto.comprador == null %}
                 <a href="/producto/eliminar/{{ producto._id.toString() }}"
                    id="eliminarDestacada}">Eliminar</a> <br>
+                {% endif %}
+
+                {% if producto.comprador !=null %}
+            <p>Vendida</p>
+            {% endif %}
             </td>
         </tr>
         {% endif %}
@@ -50,10 +56,15 @@
             <td>{{ producto.nombre }}</td>
             <td>{{ producto.descripcion }}</td>
             <td>{{ producto.precio }} (€)</td>
-            <td>
-                <a href="/producto/eliminar/{{ producto._id.toString() }}"
-                   id="eliminarNoDestacada">Eliminar</a> <br>
-            </td>
+
+            {% if producto.comprador == null %}
+            <a href="/producto/eliminar/{{ producto._id.toString() }}"
+               id="eliminarNormal}">Eliminar</a> <br>
+            {% endif %}
+
+            {% if producto.comprador !=null %}
+            <p>Vendida</p>
+            {% endif %}
             <td>
                 <a href="/producto/destacar/{{ producto._id.toString() }}"
                    id="destacar/{{producto.nombre}}">Destacar</a> <br>
