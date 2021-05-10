@@ -233,7 +233,7 @@ module.exports = function(app, gestorUsuarios, gestorProductos, gestorChat) {
                                                                                                             descripcion: "Seminuevo, solo un par de roces",
                                                                                                             precio: 2,
                                                                                                             fecha: new Date(),
-                                                                                                            propietario: "u5@email.com",
+                                                                                                            propietario: "u3@email.com",
                                                                                                             comprador: null,
                                                                                                             destacada: false
                                                                                                         }
@@ -244,7 +244,7 @@ module.exports = function(app, gestorUsuarios, gestorProductos, gestorChat) {
 
                                                                                                                 var conversacion_1 = {
                                                                                                                     "usuario1" :  "u1@email.com",
-                                                                                                                    "usuario2" : "u5@email.com",
+                                                                                                                    "usuario2" : "u3@email.com",
                                                                                                                     "producto" : producto.toString()
                                                                                                                 };
                                                                                                                 gestorChat.insertarConversacion(conversacion_1, function (conversacion) {
@@ -264,7 +264,7 @@ module.exports = function(app, gestorUsuarios, gestorProductos, gestorChat) {
                                                                                                                             }
                                                                                                                             else {
                                                                                                                                 var mensaje_2 = {
-                                                                                                                                    "emisor" : "u5@email.com",
+                                                                                                                                    "emisor" : "u3@email.com",
                                                                                                                                     "texto" : "Hola, está en perfecto estado",
                                                                                                                                     "leido" : false,
                                                                                                                                     "fecha" : new Date(),
