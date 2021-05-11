@@ -1,6 +1,14 @@
 let express = require("express");
 let app = express();
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
+    next();
+});
+
 //Para la segunda parte
 let rest = require('request');
 app.set('rest',rest);
@@ -33,15 +41,10 @@ gestorUsuarios.init(app,mongo);
 gestorProductos.init(app,mongo);
 gestorChat.init(app,mongo);
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
-    next();
-});
+
 
 app.use(express.static("public"));
+
 app.set("port", 8081);
 app.set('db','mongodb://admin:sdi@entrega2-shard-00-00.ilutx.mongodb.net:27017,entrega2-shard-00-01.ilutx.mongodb.net:27017,entrega2-shard-00-02.ilutx.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-l1lzt9-shard-0&authSource=admin&retryWrites=true&w=majority');
 app.set('clave','abcdefg');
@@ -88,6 +91,10 @@ routerTokenDeUsuario.use(function(req, res, next) {
     }
 });
 
+app.use('/api/ofertas', routerTokenDeUsuario);
+app.use('/api/chat', routerTokenDeUsuario);
+app.use('/api/mensaje', routerTokenDeUsuario);
+
 //Router para la vista de admin
 let routerVistaAdmin = express.Router();
 routerVistaAdmin.use(function(req, res, next) {
@@ -103,6 +110,8 @@ routerVistaAdmin.use(function(req, res, next) {
     }
 });
 
+app.use("/administrar",routerVistaAdmin);
+
 //Router para garantizar que la vista de bienvenida solo está accessible para usuarios no identificados
 let routerNoAutenticado = express.Router();
 routerNoAutenticado.use(function(req, res, next) {
@@ -117,6 +126,7 @@ routerNoAutenticado.use(function(req, res, next) {
         next();
     }
 });
+app.use("/iniciar",routerNoAutenticado);
 
 //Router para garantizar que la vista de bienvenida solo está accessible para usuarios no identificados
 let routerAutenticado = express.Router();
@@ -128,6 +138,8 @@ routerAutenticado.use(function(req, res, next) {
         res.redirect('/identificarse');
     }
 });
+
+app.use("/tienda", routerAutenticado);
 
 //Router para permitir acceder a las vistas de compra/añadir producto... solo a usuarios logueados y no admins
 let routerUsuarioNoAdmin = express.Router();
@@ -143,6 +155,10 @@ routerUsuarioNoAdmin.use(function(req, res, next) {
         res.redirect("/iniciar");
     }
 });
+app.use("/producto/agregar",routerUsuarioNoAdmin);
+app.use("/publicaciones",routerUsuarioNoAdmin);
+app.use("/producto/comprar",routerUsuarioNoAdmin);
+app.use("/compras",routerUsuarioNoAdmin);
 
 //Router para ver si el usuario es el dueño de una oferta determinada (autor-canción mod.) antes de poder borrarla
 let routerEsPropietario = express.Router();
@@ -158,6 +174,15 @@ routerEsPropietario.use(function(req, res, next) {
             }
         })
 });
+app.use("/producto/eliminar",routerEsPropietario);
+
+require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rerrores.js")(app, swig);
+require("./routes/rapiusuario.js")(app, gestorUsuarios);
+require("./routes/rapiproductos.js")(app, gestorProductos);
+require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
+require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
 
 //Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
 app.get('/', function(req,res){
@@ -175,29 +200,17 @@ app.get('/', function(req,res){
 });
 
 
-require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rerrores.js")(app, swig);
-require("./routes/rapiusuario.js")(app, gestorUsuarios);
-require("./routes/rapiproductos.js")(app, gestorProductos);
-require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
-require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
+
 
 
 //Aplicamos los routers a los endpoints correspondientes
-app.use("/administrar",routerVistaAdmin);
-app.use("/iniciar",routerNoAutenticado);
-app.use("/producto/agregar",routerUsuarioNoAdmin);
-app.use("/publicaciones",routerUsuarioNoAdmin);
-app.use("/producto/comprar",routerUsuarioNoAdmin);
-app.use("/compras",routerUsuarioNoAdmin);
-app.use("/producto/eliminar",routerEsPropietario);
-app.use("/tienda", routerAutenticado);
+
+
+
+
 
 //API
-app.use('/api/ofertas', routerTokenDeUsuario);
-app.use('/api/chat', routerTokenDeUsuario);
-app.use('/api/mensaje', routerTokenDeUsuario);
+
 
 
 
