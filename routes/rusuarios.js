@@ -89,6 +89,21 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         res.redirect("/identificarse");
     });
 
+    app.get('/administrar', function (req, res) {
+        //En el gestor de usuarios obtenemos los que sean criterio admin=true
+        //y devolvemos a la vista de admin
+        var criterio = {
+            isAdmin: false
+        };
+        gestorUsuarios.obtenerUsuarios(criterio, function (usuarios) {
+            var respuesta = swig.renderFile('views/badmin.html', {
+                usuarios: usuarios,
+                usuario: req.session.usuario
+            });
+            res.send(respuesta);
+        });
+    });
+
     app.post('/usuario/eliminar', function (req, res) {
         let usuarios = req.body.usuarios;
         let criterio_usuario = {};
