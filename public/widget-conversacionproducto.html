@@ -57,9 +57,31 @@
                     "<td>" +
                     "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>" +
                     "</td>" +
+                    "<td>" + mostrarNoLeidos(conversacionesMostrar[i]._id)+ " mensajes no leídos</td>" +
                     "</tr>");
             }
         }
+    }
+
+    function mostrarNoLeidos(conver){
+        $.ajax({
+            url: URLbase + "/conversaciones/noleidos/" + conver,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+                "idConversacion" : conver
+            },
+            success: function(respuesta) {
+                console.log("obtenidos no leídos con éxito");
+                console.log(respuesta);
+                return respuesta;
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
     }
 
     function mostrarChat(conver, producto, usuarioRec) {

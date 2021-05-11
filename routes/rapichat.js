@@ -379,4 +379,42 @@ module.exports = function (app, gestorProductos, gestorChat) {
             }
         });
         });
-    }
+
+
+    app.get("/api/conversaciones/noleidos/:idConversacion", function (req, res) {
+        console.log("obteniendo los mensajes no leídos para la conver " + req.params.idConversacion);
+        let usuario = req.session.usuario;
+        var conversacion = req.params.idConversacion;
+        let criterio_conv = {
+            _id: gestorProductos.mongo.ObjectID(conversacion)
+        };
+        gestorChat.obtenerConversacion(criterio_conv, function (conversacionRes) {
+            if (conversacionRes === null) {
+                res.status(501);
+                res.json({
+                    error: "La conversación no se ha encontrado"
+                });
+            } else {
+                let criterio_mensajes = {
+                    conversacion: gestorProductos.mongo.ObjectID(conversacionRes[0]._id),
+                    emisor: {$nin: [usuario]},
+                    "leido": false
+                };
+
+                gestorChat.obtenerMensajes(criterio_mensajes, function (mensajesNoLeidos) {
+                    if (mensajesNoLeidos === null) {
+                        res.status(501);
+                        res.json({
+                            error: "La conversación a eliminar no se ha encontrado"
+                        });
+                    } else {
+                        res.status(200);
+                        console.log("Obtenido número de no leídos correctamente");
+                        console.log(mensajesNoLeidos);
+                        res.send(JSON.stringify(mensajesNoLeidos));
+                    }
+                });
+            }
+        });
+    });
+}

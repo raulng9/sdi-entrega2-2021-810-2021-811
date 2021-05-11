@@ -208,13 +208,14 @@
             },
             success: function(respuesta) {
                 console.log("conversación eliminada correctamente");
+                cargarConversacionesInteresado();
+                cargarConversacionesPropietario();
             },
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
-        cargarConversacionesInteresado();
-        cargarConversacionesPropietario();
+
     }
 
 
