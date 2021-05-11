@@ -29,25 +29,28 @@
                 actualizarTabla(productos);
             },
             error: function (error) {
-                console.log("Error al hacer retrieve de las ofertas");
+                console.log("Error al cargar las ofertas");
             }
         });
     }
 
     function actualizarTabla(productosMostrar) {
         $("#tablaCuerpo").empty();
-        for (i = 0; i < productosMostrar.length; i++) {
+        for (var i = 0; i < productosMostrar.length; i++) {
             $("#tablaCuerpo").append(
-                "<tr id=" + productosMostrar[i]._id +  " class='ofertasRow'>" +
+                "<tr id='" + productosMostrar[i]._id +  "' class='ofertasRow'>" +
                 "<td>" + productosMostrar[i].nombre + "</td>" +
                 "<td>" + productosMostrar[i].descripcion + "</td>" +
                 "<td>" + productosMostrar[i].precio + "</td>" +
                 "<td>" + productosMostrar[i].fecha + "</td>" +
                 "<td>" + productosMostrar[i].propietario + "</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "','" + productosMostrar[i].propietario + "','" + productosMostrar[i].nombre + "')>Chatear</a>" +
+                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "','" + productosMostrar[i].propietario + "','" + encodeURI(productosMostrar[i].nombre) + "')>Chatear</a>" +
                 "</td>" +
                 "</tr>");
+            console.log(productosMostrar[i]._id);
+            console.log(productosMostrar[i].propietario);
+            console.log(productosMostrar[i].nombre);
         }
     }
 
@@ -58,7 +61,8 @@
         productoSeleccionado = product;
         conversacionSeleccionada = null;
         usuarioReceptor = usuarioPropietario;
-        nombreProducto = nomProducto;
+        //Especial para solucionar los espacios no escapados en nombres de varias palabras
+        nombreProducto = decodeURI(nomProducto);
         $("#contenedor-principal").load("widget-chat.html");
     }
 

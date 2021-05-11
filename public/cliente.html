@@ -25,13 +25,7 @@
             <ul class="nav navbar-nav" id="barra-menu">
                 <li><a onclick=mostrarOfertasAPI() id=ofertas">Ofertas disponibles</a></li>
                 <li><a onclick="mostrarConversaciones()" id="conver">Conversaciones</a></li>
-                <li><a id="ofertados" onclick=mostrarMisOfertas()>Mis ofertas</a></li>
             </ul>
-            <!--
-            <ul class="nav navbar-nav navbar-right" id="barra-menu-derecha">
-                <li><a onclick=mostrarLogin()>Iniciar sesión</a></li>
-            </ul>
-            -->
         </div>
     </div>
 </nav>
@@ -67,10 +61,6 @@
         if(w === "conversaciones"){
             contenedorPrincipal.load("widget-conversacion.html");
         }
-
-        if(w === "productospropios"){
-            contenedorPrincipal.load("widget-productospropios.html");
-        }
     }
 
     function mostrarOfertasAPI() {
@@ -86,9 +76,6 @@
         contenedorPrincipal.load("widget-conversacion.html");
     }
 
-    function mostrarMisOfertas() {
-        contenedorPrincipal.load("widget-productospropios.html");
-    }
 
 </script>
 </body>
