@@ -16,19 +16,14 @@ app.use(expressSession({
 }));
 
 let crypto = require('crypto');
-
-let fileUpload = require('express-fileupload');
-app.use(fileUpload());
-
 let mongo = require('mongodb');
-
 let swig = require("swig");
-
 let bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+//Inicialización de los gestores de bases de datos MongoDB
 let gestorProductos = require("./modules/gestorProductos.js");
 let gestorUsuarios = require("./modules/gestorUsuarios.js");
 let gestorChat = require("./modules/gestorChat.js");
@@ -36,15 +31,11 @@ gestorUsuarios.init(app,mongo);
 gestorProductos.init(app,mongo);
 gestorChat.init(app,mongo);
 
-//let gestorChat = require("./modules/gestorChat.js");
-//gestorChat.init(app,mongo);
-
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
-    // Debemos especificar todas las headers que se aceptan. Content-Type , token
     next();
 });
 
@@ -54,29 +45,6 @@ app.set('db','mongodb://admin:sdi@entrega2-shard-00-00.ilutx.mongodb.net:27017,e
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
 
-require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rerrores.js")(app, swig);
-require("./routes/rapiusuario.js")(app, gestorUsuarios);
-require("./routes/rapiproductos.js")(app, gestorProductos);
-require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
-require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
-
-
-//Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
-app.get('/', function(req,res){
-    if(req.session.usuario) {
-        if(req.session.usuario === 'admin@admin.com'){
-            res.redirect('/publicaciones');
-        }
-        else {
-            res.redirect('/tienda');
-        }
-    }
-    else{
-        res.redirect('/iniciar');
-    }
-});
 
 /*
 app.use(function (err, req, res, next) {
@@ -91,6 +59,7 @@ app.use(function (err, req, res, next) {
 //ROUTERS
 let routerTokenDeUsuario = express.Router();
 routerTokenDeUsuario.use(function(req, res, next) {
+    console.log("este sí a ");
     let token = req.headers['token'] || req.body.token || req.query.token;
     if (token != null) {
         // Checkeamos que es correcto
@@ -111,7 +80,7 @@ routerTokenDeUsuario.use(function(req, res, next) {
         res.status(403); // Forbidden
         res.json({
             acceso : false,
-            mensaje: 'No hay Token'
+            mensaje: 'No hay token de usuario'
         });
     }
 });
@@ -119,12 +88,11 @@ routerTokenDeUsuario.use(function(req, res, next) {
 //Router para la vista de admin
 let routerVistaAdmin = express.Router();
 routerVistaAdmin.use(function(req, res, next) {
-    console.log(req.session.usuario);
     if ( req.session.usuario ) {
         if (req.session.usuario === 'admin@email.com') {
             next();
         } else {
-            res.redirect('/tienda');
+            res.redirect('/publicaciones');
         }
     }
     else {
@@ -139,11 +107,22 @@ routerNoAutenticado.use(function(req, res, next) {
         if (req.session.usuario === 'admin@email.com') {
             res.redirect('/administrar');
         } else {
-            res.redirect('/tienda');
+            res.redirect('/publicaciones');
         }
     }
     else {
         next();
+    }
+});
+
+//Router para garantizar que la vista de bienvenida solo está accessible para usuarios no identificados
+let routerAutenticado = express.Router();
+routerAutenticado.use(function(req, res, next) {
+    if ( req.session.usuario ) {
+       next();
+    }
+    else {
+        res.redirect('/identificarse');
     }
 });
 
@@ -165,6 +144,7 @@ routerUsuarioNoAdmin.use(function(req, res, next) {
 //Router para ver si el usuario es el dueño de una oferta determinada (autor-canción mod.) antes de poder borrarla
 let routerEsPropietario = express.Router();
 routerEsPropietario.use(function(req, res, next) {
+    console.log("este sí d");
     let path = require('path');
     let id = path.basename(req.originalUrl);
     gestorProductos.obtenerProductos(
@@ -178,9 +158,6 @@ routerEsPropietario.use(function(req, res, next) {
 });
 
 //Aplicamos los routers a los endpoints correspondientes
-app.use('/api/ofertas', routerTokenDeUsuario);
-app.use('/api/chat', routerTokenDeUsuario);
-app.use('/api/mensaje', routerTokenDeUsuario);
 app.use("/administrar",routerVistaAdmin);
 app.use("/iniciar",routerNoAutenticado);
 app.use("/producto/agregar",routerUsuarioNoAdmin);
@@ -188,6 +165,38 @@ app.use("/publicaciones",routerUsuarioNoAdmin);
 app.use("/producto/comprar",routerUsuarioNoAdmin);
 app.use("/compras",routerUsuarioNoAdmin);
 app.use("/producto/eliminar",routerEsPropietario);
+app.use("/tienda", routerAutenticado);
+
+//API
+app.use('/api/ofertas', routerTokenDeUsuario);
+app.use('/api/chat', routerTokenDeUsuario);
+app.use('/api/mensaje', routerTokenDeUsuario);
+
+
+//Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
+app.get('/', function(req,res){
+    console.log("este sí genérico");
+    if(req.session.usuario) {
+        if(req.session.usuario === 'admin@admin.com'){
+            res.redirect('/tienda');
+        }
+        else {
+            res.redirect('/publicaciones');
+        }
+    }
+    else{
+        res.redirect('/iniciar');
+    }
+});
+
+require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rerrores.js")(app, swig);
+require("./routes/rapiusuario.js")(app, gestorUsuarios);
+require("./routes/rapiproductos.js")(app, gestorProductos);
+require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
+require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
+
 
 //Mensaje inicial para notificar en dev
 app.listen(app.get('port'), function () {

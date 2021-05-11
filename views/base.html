@@ -25,8 +25,13 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
+        {% if usuario != null %}
+        <li id="mTienda"><a href="/tienda">Tienda</a></li>
+        {% endif %}
+        {% if usuario != null && usuario === 'admin@email.com'%}
+        <li id="mAdmin"><a href="/administrar">Administrar</a></li>
+        {% endif %}
         {% if usuario != null && usuario != 'admin@email.com'%}
-        <li id="mTienda" class="active"><a href="/tienda">Tienda</a></li>
 		<li id="mPublicaciones"><a href="/publicaciones">Mis productos</a></li>
         <li id="mAgregar"><a href="/producto/agregar">Añadir producto</a></li>
         <li id="mCompras"><a href="/compras">Mis compras</a></li>
