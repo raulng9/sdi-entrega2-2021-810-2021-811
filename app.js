@@ -16,6 +16,8 @@ app.use(expressSession({
 }));
 
 let crypto = require('crypto');
+let fileUpload = require('express-fileupload');
+app.use(fileUpload());
 let mongo = require('mongodb');
 let swig = require("swig");
 let bodyParser = require("body-parser");
@@ -44,6 +46,8 @@ app.set("port", 8081);
 app.set('db','mongodb://admin:sdi@entrega2-shard-00-00.ilutx.mongodb.net:27017,entrega2-shard-00-01.ilutx.mongodb.net:27017,entrega2-shard-00-02.ilutx.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-l1lzt9-shard-0&authSource=admin&retryWrites=true&w=majority');
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
+
+
 
 
 /*
@@ -155,6 +159,31 @@ routerEsPropietario.use(function(req, res, next) {
         })
 });
 
+//Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
+app.get('/', function(req,res){
+    if(req.session.usuario) {
+        if(req.session.usuario === 'admin@admin.com'){
+            res.redirect('/tienda');
+        }
+        else {
+            res.redirect('/publicaciones');
+        }
+    }
+    else{
+        res.redirect('/iniciar');
+    }
+});
+
+
+require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
+require("./routes/rerrores.js")(app, swig);
+require("./routes/rapiusuario.js")(app, gestorUsuarios);
+require("./routes/rapiproductos.js")(app, gestorProductos);
+require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
+require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
+
+
 //Aplicamos los routers a los endpoints correspondientes
 app.use("/administrar",routerVistaAdmin);
 app.use("/iniciar",routerNoAutenticado);
@@ -171,28 +200,7 @@ app.use('/api/chat', routerTokenDeUsuario);
 app.use('/api/mensaje', routerTokenDeUsuario);
 
 
-//Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
-app.get('/', function(req,res){
-    if(req.session.usuario) {
-        if(req.session.usuario === 'admin@admin.com'){
-            res.redirect('/tienda');
-        }
-        else {
-            res.redirect('/publicaciones');
-        }
-    }
-    else{
-        res.redirect('/iniciar');
-    }
-});
 
-require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rerrores.js")(app, swig);
-require("./routes/rapiusuario.js")(app, gestorUsuarios);
-require("./routes/rapiproductos.js")(app, gestorProductos);
-require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
-require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
 
 
 //Mensaje inicial para notificar en dev
