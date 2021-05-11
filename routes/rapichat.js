@@ -248,7 +248,6 @@ module.exports = function (app, gestorProductos, gestorChat) {
         let criterio_conversacion = {
             "_id": gestorChat.mongo.ObjectID(conversacion)
         };
-
         gestorChat.obtenerConversacion(criterio_conversacion, function (conversaciones) {
             if (conversaciones === null) {
                 res.status(501);
@@ -382,7 +381,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
 
 
     app.get("/api/conversaciones/noleidos/:idConversacion", function (req, res) {
-        console.log("obteniendo los mensajes no leídos para la conver " + req.params.idConversacion);
+        console.log("obteniendo número de no leídos para la conver " + req.params.idConversacion);
         let usuario = req.session.usuario;
         var conversacion = req.params.idConversacion;
         let criterio_conv = {
@@ -405,7 +404,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     if (mensajesNoLeidos === null) {
                         res.status(501);
                         res.json({
-                            error: "La conversación a eliminar no se ha encontrado"
+                            error: "Los mensajes no se han podido encontrar"
                         });
                     } else {
                         res.status(200);

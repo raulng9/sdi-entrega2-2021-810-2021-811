@@ -51,18 +51,6 @@ app.set('clave','abcdefg');
 app.set('crypto',crypto);
 
 
-
-
-/*
-app.use(function (err, req, res, next) {
-    console.log("Error producido: " + err); // Mostramos el error en consola
-    if (!res.headersSent) {
-        res.status(400);
-        res.send("Recurso no disponible");
-    }
-});
-*/
-
 //ROUTERS
 let routerTokenDeUsuario = express.Router();
 routerTokenDeUsuario.use(function(req, res, next) {
@@ -74,7 +62,7 @@ routerTokenDeUsuario.use(function(req, res, next) {
                 res.status(403); // Forbidden
                 res.json({
                     acceso : false,
-                    error: 'El token recibido es inválido ya ha caducado'
+                    error: 'El token recibido es inválido, ya ha caducado'
                 });
             } else {
                 res.usuario = infoToken.usuario;
@@ -174,11 +162,13 @@ routerEsPropietario.use(function(req, res, next) {
             }
         })
 });
+
 app.use("/producto/eliminar",routerEsPropietario);
+
+
 
 require("./routes/rusuarios.js")(app,swig,gestorUsuarios, gestorProductos);
 require("./routes/rproductos.js")(app,swig,gestorUsuarios, gestorProductos);
-require("./routes/rerrores.js")(app, swig);
 require("./routes/rapiusuario.js")(app, gestorUsuarios);
 require("./routes/rapiproductos.js")(app, gestorProductos);
 require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
@@ -198,23 +188,6 @@ app.get('/', function(req,res){
         res.redirect('/iniciar');
     }
 });
-
-
-
-
-
-//Aplicamos los routers a los endpoints correspondientes
-
-
-
-
-
-//API
-
-
-
-
-
 
 //Mensaje inicial para notificar en dev
 app.listen(app.get('port'), function () {

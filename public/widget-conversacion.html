@@ -77,7 +77,6 @@
                 headers: { "token": token,
                 },
                 success: function(respuesta) {
-                    //console.log("datos de producto " + respuesta[0]._id + " ok");
                     incluirConvInteresadoEnTabla(currentConv, respuesta[0].nombre);
                 },
                 error : function (error){
@@ -125,7 +124,11 @@
             "<td>" +
             "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
             "</td>" +
+            "<td class='contador_no_leidos_interesado'></td>" +
             "</tr>");
+        let numConvsInteresado = $('.contador_no_leidos_interesado').length-1;
+        console.log("calculados " + numConvsInteresado);
+        mostrarNoLeidosInteresado(conversacionParaIncluir._id, numConvsInteresado);
     }
 
     function incluirConvPropietarioEnTabla(conversacionParaIncluir, nombreProducto){
@@ -140,7 +143,11 @@
             "<td>" +
             "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
             "</td>" +
+            "<td class='contador_no_leidos_propietario'></td>" +
             "</tr>");
+        let numConvsPropietario = $('.contador_no_leidos_propietario').length-1;
+        console.log("calculados " + numConvsPropietario);
+        mostrarNoLeidosPropietario(conversacionParaIncluir._id, numConvsPropietario);
     }
 
     function mostrarChat(conver, producto, usuarioRecep, nomProducto) {
@@ -218,6 +225,46 @@
 
     }
 
+    function mostrarNoLeidosInteresado(conver, indexAEditar){
+        $.ajax({
+            url: URLbase + "/conversaciones/noleidos/" + conver,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+                "idConversacion" : conver
+            },
+            success: function(respuesta) {
+                console.log("obtenidos no leídos interesado con éxito");
+                console.log(respuesta);
+                $('.contador_no_leidos_interesado').eq(indexAEditar).append(respuesta.length + " mensajes no leídos");
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
 
+    function mostrarNoLeidosPropietario(conver, indexAEditar){
+        $.ajax({
+            url: URLbase + "/conversaciones/noleidos/" + conver,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+                "idConversacion" : conver
+            },
+            success: function(respuesta) {
+                console.log("obtenidos no leídos propietario con éxito");
+                console.log(respuesta);
+                $('.contador_no_leidos_propietario').eq(indexAEditar).append(respuesta.length + " mensajes no leídos");
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
 
 </script>
