@@ -78,10 +78,10 @@
                 "<td>"+conversacionesMostrar[i].usuario2+"</td>" +
                 "<td>"+conversacionesMostrar[i].producto+"</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('"+conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "')>Chat</a>"+
+                "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario2 + "')>Chat</a>"+
                 "</td>" +
                 "<td>" +
-                "<a onclick=eliminarChat('"+conversacionesMostrar[i]._id +"')>Eliminar chat</a>"+
+                "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
                 "</td>" +
                 "</tr>" );
         }
@@ -95,10 +95,10 @@
                 "<td>"+conversacionesMostrar[i].usuario1+"</td>" +
                 "<td>"+conversacionesMostrar[i].producto+"</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('"+conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario1 +"')>Chat</a>"+
+                "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario1 + "')>Chat</a>"+
                 "</td>" +
                 "<td>" +
-                "<a onclick=eliminarChat('"+conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
+                "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
                 "</td>" +
                 "</tr>" );
         }
@@ -107,6 +107,7 @@
     function mostrarChat(conver, producto, usuarioRecep) {
         conversacionSeleccionada = conver;
         console.log("Mostrando chat para prod " + producto);
+        console.log("Usuario rec " + usuarioRecep);
         productoSeleccionado = producto;
         usuarioReceptor = usuarioRecep
         $( "#contenedor-principal" ).load( "widget-chat.html" );

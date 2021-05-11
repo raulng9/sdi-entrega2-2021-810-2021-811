@@ -59,7 +59,6 @@ app.use(function (err, req, res, next) {
 //ROUTERS
 let routerTokenDeUsuario = express.Router();
 routerTokenDeUsuario.use(function(req, res, next) {
-    console.log("este sí a ");
     let token = req.headers['token'] || req.body.token || req.query.token;
     if (token != null) {
         // Checkeamos que es correcto
@@ -144,7 +143,6 @@ routerUsuarioNoAdmin.use(function(req, res, next) {
 //Router para ver si el usuario es el dueño de una oferta determinada (autor-canción mod.) antes de poder borrarla
 let routerEsPropietario = express.Router();
 routerEsPropietario.use(function(req, res, next) {
-    console.log("este sí d");
     let path = require('path');
     let id = path.basename(req.originalUrl);
     gestorProductos.obtenerProductos(
@@ -175,7 +173,6 @@ app.use('/api/mensaje', routerTokenDeUsuario);
 
 //Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
 app.get('/', function(req,res){
-    console.log("este sí genérico");
     if(req.session.usuario) {
         if(req.session.usuario === 'admin@admin.com'){
             res.redirect('/tienda');

@@ -45,7 +45,7 @@
                 "<td>" + productosMostrar[i].fecha + "</td>" +
                 "<td>" + productosMostrar[i].propietario + "</td>" +
                 "<td>" +
-                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "')>Chatear</a>" +
+                "<a onclick=mostrarChat('" + productosMostrar[i]._id + "','" + productosMostrar[i].propietario +"')>Chatear</a>" +
                 "</td>" +
                 "</tr>");
         }
@@ -53,11 +53,11 @@
 
     cargarProductos();
 
-    function mostrarChat(product) {
+    function mostrarChat(product, usuarioPropietario) {
         //Cargamos el chat específico para el producto dado
         productoSeleccionado = product;
         conversacionSeleccionada = null;
-        usuario = null;
+        usuarioReceptor = usuarioPropietario;
         $("#contenedor-principal").load("widget-chat.html");
     }
 
