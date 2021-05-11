@@ -114,12 +114,12 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             }
             gestorUsuarios.eliminarUsuario(criterio_usuario, function (usuarios) {
                 if (usuarios == null) {
-                    res.redirect('/administrar?mensaje=Se ha producido un error');
+                    res.redirect('/administrar?mensaje=Se ha producido un error'+ "&tipoMensaje=alert-danger");
                 }
             });
             gestorProductos.eliminarProducto(criterio_producto, function (productos) {
                 if (productos == null) {
-                    res.redirect('/administrar?mensaje=Se ha producido un error');
+                    res.redirect('/administrar?mensaje=Se ha producido un error'+ "&tipoMensaje=alert-danger");
                 }
             });
         }

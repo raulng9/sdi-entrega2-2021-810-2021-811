@@ -12,6 +12,7 @@ module.exports = function(app, gestorUsuarios) {
         gestorUsuarios.obtenerUsuarios(criterio, function(usuarios) {
             if (usuarios == null || usuarios.length === 0) {
                 res.status(401);
+
                 res.json({ autenticado : false})
             } else {
                 let token = app.get('jwt').sign(
