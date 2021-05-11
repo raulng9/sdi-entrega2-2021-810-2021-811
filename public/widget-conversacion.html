@@ -38,10 +38,9 @@
             },
             success: function(respuesta) {
                 conversaciones = respuesta;
-                actualizarTablaInteresado(conversaciones);
+                $( "#tablaMensajesInteresado" ).empty();
+                buscarNombresDeProductoInteresado(conversaciones);
             },
-            //En fallo volvemos al login o a la tienda?
-            //Mejor mostrar que no hay conversaciones recibidas
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
@@ -57,59 +56,99 @@
             },
             success: function(respuesta) {
                 conversaciones = respuesta;
-                actualizarTablaPropietario(conversaciones);
+                $( "#tablaMensajesPropietario" ).empty();
+                console.log(conversaciones);
+                buscarNombresDeProductoPropietario(conversaciones);
             },
-            //En fallo volvemos al login o a la tienda?
-            //Mejor mostrar que no hay conversaciones recibidas
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
     }
 
+    function buscarNombresDeProductoInteresado(listadoConversaciones){
+        for(var i = 0; i < listadoConversaciones.length; i++){
+            var currentConv = listadoConversaciones[i];
+            $.ajax({
+                url: URLbase + "/producto/" + listadoConversaciones[i].producto,
+                type: "GET",
+                data: { },
+                dataType: 'json',
+                headers: { "token": token,
+                },
+                success: function(respuesta) {
+                    //console.log("datos de producto " + respuesta[0]._id + " ok");
+                    incluirConvInteresadoEnTabla(currentConv, respuesta[0].nombre);
+                },
+                error : function (error){
+                    $( "#contenedor-principal" ).load("widget-login.html");
+                }
+            });
+        }
+    }
+
+    function buscarNombresDeProductoPropietario(listadoConversaciones){
+        for(var i = 0; i < listadoConversaciones.length; i++){
+            var currentConv = listadoConversaciones[i];
+            $.ajax({
+                url: URLbase + "/producto/" + listadoConversaciones[i].producto,
+                type: "GET",
+                data: { },
+                dataType: 'json',
+                headers: { "token": token,
+                },
+                success: function(respuesta) {
+                    incluirConvPropietarioEnTabla(currentConv, respuesta[0].nombre);
+                },
+                //En fallo volvemos al login o a la tienda?
+                //Mejor mostrar que no hay conversaciones recibidas
+                error : function (error){
+                    $( "#contenedor-principal" ).load("widget-login.html");
+                }
+            });
+        }
+    }
+
     cargarConversacionesInteresado();
     cargarConversacionesPropietario();
 
-    function actualizarTablaInteresado(conversacionesMostrar){
-        $( "#tablaMensajesInteresado" ).empty();
-        for (i = 0; i < conversacionesMostrar.length; i++) {
-            $( "#tablaMensajesInteresado" ).append(
-                "<tr id="+conversacionesMostrar[i]._id+">"+
-                "<td>"+conversacionesMostrar[i].usuario2+"</td>" +
-                "<td>"+conversacionesMostrar[i].producto+"</td>" +
-                "<td>" +
-                "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario2 + "')>Chat</a>"+
-                "</td>" +
-                "<td>" +
-                "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
-                "</td>" +
-                "</tr>" );
-        }
+
+    function incluirConvInteresadoEnTabla(conversacionParaIncluir, nombreProducto){
+        var tablaInteresado = $( "#tablaMensajesInteresado" );
+        tablaInteresado.append(
+            "<tr id="+conversacionParaIncluir._id+">"+
+            "<td>"+conversacionParaIncluir.usuario2+"</td>" +
+            "<td>"+nombreProducto+"</td>" +
+            "<td>" +
+            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario2 + "','" + nombreProducto + "')>Chat</a>"+
+            "</td>" +
+            "<td>" +
+            "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
+            "</td>" +
+            "</tr>");
     }
 
-    function actualizarTablaPropietario(conversacionesMostrar){
-        $( "#tablaMensajesPropietario" ).empty();
-        for (i = 0; i < conversacionesMostrar.length; i++) {
-            $( "#tablaMensajesPropietario" ).append(
-                "<tr id="+conversacionesMostrar[i]._id+">"+
-                "<td>"+conversacionesMostrar[i].usuario1+"</td>" +
-                "<td>"+conversacionesMostrar[i].producto+"</td>" +
-                "<td>" +
-                "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario1 + "')>Chat</a>"+
-                "</td>" +
-                "<td>" +
-                "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>"+
-                "</td>" +
-                "</tr>" );
-        }
+    function incluirConvPropietarioEnTabla(conversacionParaIncluir, nombreProducto){
+        var tablaInteresado = $( "#tablaMensajesPropietario" );
+        tablaInteresado.append(
+            "<tr id="+conversacionParaIncluir._id+">"+
+            "<td>"+conversacionParaIncluir.usuario1+"</td>" +
+            "<td>"+nombreProducto+"</td>" +
+            "<td>" +
+            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario1 + "','" + nombreProducto + "')>Chat</a>"+
+            "</td>" +
+            "<td>" +
+            "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
+            "</td>" +
+            "</tr>");
     }
 
-    function mostrarChat(conver, producto, usuarioRecep) {
+    function mostrarChat(conver, producto, usuarioRecep, nomProducto) {
         conversacionSeleccionada = conver;
         console.log("Mostrando chat para prod " + producto);
-        console.log("Usuario rec " + usuarioRecep);
         productoSeleccionado = producto;
-        usuarioReceptor = usuarioRecep
+        usuarioReceptor = usuarioRecep;
+        nombreProducto = nomProducto;
         $( "#contenedor-principal" ).load( "widget-chat.html" );
     }
 

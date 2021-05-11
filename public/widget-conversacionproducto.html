@@ -1,5 +1,5 @@
 <div id="widget-conversaciones" >
-    <h3>Conversaciones del producto</h3>
+    <h3 class="titulo_prod_propio">Conversaciones del producto</h3>
     <table class="table table-hover" id="tablaMainMensajes">
         <thead>
         <tr>
@@ -13,8 +13,7 @@
 </div>
 
 <script>
-    function cargarConversacionesProducto(){
-        console.log("ahora sí q sí");
+    function cargarConversacionesProductosPropios(){
         $.ajax({
             url: URLbase + "/mensajes/" + productoSeleccionado,
             type: "GET",
@@ -24,6 +23,7 @@
             },
             success: function(respuesta) {
                 conversaciones = respuesta;
+                $( ".titulo_prod_propio" ).text("Conversaciones del producto: " + nombreProductoPropio);
                 actualizarTabla(conversaciones);
             },
             //En fallo volvemos al login o a la tienda?
@@ -34,7 +34,8 @@
         });
     }
 
-    cargarConversacionesProducto();
+    cargarConversacionesProductosPropios();
+
 
     function actualizarTabla(conversacionesMostrar){
         if(conversacionesMostrar.length === 0){
@@ -50,9 +51,8 @@
                 $("#tablaMensajes").append(
                     "<tr id=" + conversacionesMostrar[i]._id + ">" +
                     "<td>" + conversacionesMostrar[i].usuario1 + "</td>" +
-                    "<td>" + conversacionesMostrar[i].producto + "</td>" +
                     "<td>" +
-                    "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "')>Chat</a>" +
+                    "<a onclick=mostrarChat('" + conversacionesMostrar[i]._id + "','" + conversacionesMostrar[i].producto + "','" + conversacionesMostrar[i].usuario1  +"')>Chat</a>" +
                     "</td>" +
                     "<td>" +
                     "<a onclick=eliminarChat('" + conversacionesMostrar[i]._id + "')>Eliminar chat</a>" +
@@ -62,32 +62,72 @@
         }
     }
 
-    function mostrarChat(conver, producto) {
+    function mostrarChat(conver, producto, usuarioRec) {
         conversacionSeleccionada = conver;
         productoSeleccionado = producto;
+        usuarioReceptor = usuarioRec;
+        nombreProducto = nombreProductoPropio;
         $( "#contenedor-principal" ).load( "widget-chat.html" );
     }
 
     function eliminarChat(conversacion){
-        console.log("A punto de eliminar la conversación " + conversacion);
-
-    }
-
-    function eliminar( _id ) {
         $.ajax({
-            url: URLbase + "/cancion/"+_id,
-            type: "DELETE",
+            url: URLbase + "/mensajes/conv/" + conversacion,
+            type: "GET",
             data: { },
             dataType: 'json',
-            headers: { "token": token },
-            success: function(respuesta) {
-                console.log("Eliminada: "+_id);
-                $( "#"+ _id ).remove(); // eliminar el <tr> de la canción
+            headers: {
+                "token": token,
+                "conversacion" : conversacion
             },
-            error : function (error) {
-                let errorDiv = $('#error-container')
-                errorDiv.show();
-                errorDiv.text('Error: ' + error.responseJSON.error);
+            success: function(respuesta) {
+                //Primero se eliminan los mensajes y después la conversación
+                eliminarMensajes(respuesta);
+                eliminarConversacion(conversacion);
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
+            }
+        });
+    }
+
+    function eliminarMensajes(listaDeMensajes){
+        for(let i = 0; i < listaDeMensajes.length; i++){
+            console.log("eliminando " + listaDeMensajes[i]);
+            $.ajax({
+                url: URLbase + "/mensajes/eliminar/" + listaDeMensajes[i]._id,
+                type: "GET",
+                data: { },
+                dataType: 'json',
+                headers: {
+                    "token": token,
+                },
+                success: function(respuesta) {
+                    console.log("mensaje eliminado correctamente");
+                },
+                error : function (error){
+                    $( "#contenedor-principal" ).load("widget-login.html");
+                }
+            });
+        }
+    }
+
+    function eliminarConversacion(conversacion){
+        console.log("a punto de eliminar la conversación " + conversacion);
+        $.ajax({
+            url: URLbase + "/conversaciones/eliminar/" + conversacion,
+            type: "GET",
+            data: { },
+            dataType: 'json',
+            headers: {
+                "token": token,
+            },
+            success: function(respuesta) {
+                console.log("conversación eliminada correctamente");
+                cargarConversacionesProductosPropios();
+            },
+            error : function (error){
+                $( "#contenedor-principal" ).load("widget-login.html");
             }
         });
     }

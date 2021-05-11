@@ -42,4 +42,25 @@ module.exports = function(app, gestorProductos) {
         });
     });
 
+    app.get("/api/producto/:idProducto", function(req, res) {
+        //Para acceder a los datos específicos de producto
+        var producto = req.params.idProducto;
+        let criterio_producto = {
+            _id: gestorProductos.mongo.ObjectID(producto)
+        };
+        console.log("Buscando datos del producto " + [req.params.producto]);
+        gestorProductos.obtenerProductos( criterio_producto, function(productos) {
+            if (productos == null) {
+                res.status(500);
+                res.json({
+                    error : "Error al obtener los productos de la BBDD"
+                })
+            } else {
+                res.status(200);
+                console.log(JSON.stringify(productos));
+                res.send( JSON.stringify(productos) );
+            }
+        });
+    });
+
 }

@@ -1,13 +1,11 @@
 .mensaje_propio_no_leido{
     text-align: right;
     color: #2ecc71;
-    margin-right: 100px;
 }
 
 .mensaje_propio_leido{
     text-align: right;
     color: #27ae60;
-    margin-right: 100px;
 }
 
 .mensaje_otro{
@@ -16,5 +14,6 @@
 
 h4{
     border: 1px solid black;
+    border-radius: 4px;
     padding: 10px;
 }

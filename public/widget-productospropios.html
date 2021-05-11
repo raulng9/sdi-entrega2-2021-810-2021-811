@@ -39,15 +39,16 @@
                 "<td>"+productosMostrar[i].descripcion+"</td>" +
                 "<td>"+productosMostrar[i].precio+"</td>" +
                 "<td>" +
-                "<a onclick=mostrarTodasConversaciones('"+productosMostrar[i]._id+"')>Conversaciones del producto</a>"+
+                "<a onclick=mostrarTodasConversaciones('"+productosMostrar[i]._id+ "','" + productosMostrar[i].nombre +"')>Conversaciones del producto</a>"+
                 "</td>" +
                 "</tr>" );
         }
     }
     cargarProductosPropios();
 
-    function mostrarTodasConversaciones(product) {
+    function mostrarTodasConversaciones(product,nomProducto) {
         productoSeleccionado = product;
+        nombreProductoPropio = nomProducto;
         $( "#contenedor-principal" ).load( "widget-conversacionproducto.html" );
     }
 </script>

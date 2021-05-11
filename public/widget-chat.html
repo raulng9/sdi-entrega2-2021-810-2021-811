@@ -1,5 +1,6 @@
 <div id="widget-chat">
     <h2 id="titulo">Chat de la oferta:</h2>
+    <h5 id="datos_oferta"></h5>
     <div id="chat-container">
     </div>
 </div>
@@ -23,14 +24,22 @@
             },
             success : function(respuesta) {
                 actualizarMensajesChat(respuesta);
+                actualizarDatosExtraChat(usuarioReceptor, nombreProducto);
             },
             error : function(error) {
                 console.log("Error al cargar los mensajes");
             }
         });
     }
-    function actualizarMensajesChat(mensajesMostrar) {
 
+    function actualizarDatosExtraChat(nombrePropietario, nombreProducto){
+        let encabezadoDatos = $("#datos_oferta");
+        encabezadoDatos.empty();
+        encabezadoDatos.append("Usuario: " + nombrePropietario + " <br /> Producto: " + nombreProducto);
+    }
+
+
+    function actualizarMensajesChat(mensajesMostrar) {
         let codigoTabla = "";
         $("#chat-container").empty();
         for(let i = 0; i < mensajesMostrar.length; i++){
@@ -48,18 +57,6 @@
             }
         }
 
-/*
-        $("#tablaCuerpoChat").empty();
-        for (let i = 0; i < mensajesMostrar.length; i++) {
-            $("#tablaCuerpoChat").append(
-                "<tr id="+mensajesMostrar[i]._id+">" + "<td>"
-                + mensajesMostrar[i].emisor + "</td>" + "<td>"
-                + mensajesMostrar[i].fecha + "</td>" + "<td>"
-                + mensajesMostrar[i].texto + "</td>" + "<td>" +
-                + mensajesMostrar[i].leido + "</td>" + "<td>" +
-                "</tr>");
-        }
-*/
         $("#chat-container").append(codigoTabla);
     }
 
@@ -93,7 +90,6 @@
             cargarMensajes();
         }
     }, 1000);
-
 
 
     function marcarMensajeComoLeido(mensajeMarcar) {
