@@ -217,7 +217,7 @@ module.exports = function (app, gestorUsuarios, gestorProductos, gestorChat) {
                                                                                                                                         var producto_7 = {
                                                                                                                                             nombre: "Mochila",
                                                                                                                                             descripcion: "Como nueva",
-                                                                                                                                            precio: 15,
+                                                                                                                                            precio:88,
                                                                                                                                             fecha: new Date(),
                                                                                                                                             propietario: "u4@email.com",
                                                                                                                                             comprador: null,

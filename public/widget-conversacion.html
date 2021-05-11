@@ -115,7 +115,7 @@
     function incluirConvInteresadoEnTabla(conversacionParaIncluir, nombreProducto){
         var tablaInteresado = $( "#tablaMensajesInteresado" );
         tablaInteresado.append(
-            "<tr id="+conversacionParaIncluir._id+">"+
+            "<tr id="+conversacionParaIncluir._id+ " class='interesadosTabla'>" +
             "<td>"+conversacionParaIncluir.usuario2+"</td>" +
             "<td>"+nombreProducto+"</td>" +
             "<td>" +
