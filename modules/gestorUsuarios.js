@@ -39,6 +39,7 @@ module.exports = {
             }
         });
     },
+    /*
     modificarUsuario: function (criterio, usuario, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
             if (err) {
@@ -56,6 +57,7 @@ module.exports = {
             }
         });
     },
+    */
     eliminarUsuario: function (criterio, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function (err, db) {
             if (err) {

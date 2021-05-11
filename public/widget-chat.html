@@ -43,6 +43,8 @@
             }else if(Cookies.get('usuario') !== mensajesMostrar[i].emisor && !mensajesMostrar[i].leido){
                 marcarMensajeComoLeido(mensajesMostrar[i]._id);
                 codigoTabla += "<h4 class='mensaje_otro'>"+ mensajesMostrar[i].texto +"</h4><br>";
+            }else{
+                codigoTabla += "<h4 class='mensaje_otro'>"+ mensajesMostrar[i].texto +"</h4><br>";
             }
         }
 
@@ -62,13 +64,14 @@
     }
 
     function enviarMensaje() {
+        console.log("valor cookie");
         $.ajax({
             url: URLbase + "/enviarmensaje",
             type: "POST",
             data: {
                 producto: productoSeleccionado,
                 texto: $("#textomensaje").val(),
-                recep : Cookies.get('usuario')
+                recep : usuarioReceptor
             },
             dataType: 'json',
             headers: {
@@ -101,7 +104,6 @@
             headers: {"token": token},
             dataType: 'json',
             success: function (respuesta) {
-                console.log(respuesta);
                 console.log("mensaje " + mensajeMarcar + " marcado como leído correctamente");
             },
             error: function (error) {

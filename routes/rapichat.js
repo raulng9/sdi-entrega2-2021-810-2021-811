@@ -33,6 +33,9 @@ module.exports = function (app, gestorProductos, gestorChat) {
                 } else {
                     //Envío correcto a priori
                     if (usuario === propietario && typeof req.body.recep !== 'undefined') {
+                        console.log(req.body.recep);
+                        console.log(propietario);
+                        console.log(id_producto);
                         let receptor = req.body.recep;
                         //Criterio general para la conv. (para crear o para buscar)
                         criterio_conversacion = {

@@ -60,6 +60,8 @@ require("./routes/rerrores.js")(app, swig);
 require("./routes/rapiusuario.js")(app, gestorUsuarios);
 require("./routes/rapiproductos.js")(app, gestorProductos);
 require("./routes/rapichat.js")(app, gestorProductos,gestorChat);
+require("./routes/rapitests.js")(app, gestorUsuarios, gestorProductos,gestorChat);
+
 
 //Endpoint básico, en caso de admin no hay productos a la venta, con lo que se envía a tienda
 app.get('/', function(req,res){
