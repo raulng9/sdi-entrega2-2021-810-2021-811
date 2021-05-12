@@ -17,6 +17,11 @@
 <script>
     window.history.pushState("", "", "/cliente.html?w=ofertas");
     var productos;
+
+    /**
+     * Método encargado de llamar a la API para obtener las ofertas disponibles para el usuario actual (identificado
+     * mediante el token). En caso de una respuesta correcta se procede a actualizar la tabla de ofertas.
+     */
     function cargarProductos() {
         $.ajax({
             url: URLbase + "/ofertas",
@@ -34,6 +39,10 @@
         });
     }
 
+    /**
+     * Método encargado de actualizar la tabla de ofertas con los nuevos productos obtenidos de la API. Introduce
+     * una fila por cada producto, incluyendo su información y un enlace para acceder al chat del producto en cuestión.
+     */
     function actualizarTabla(productosMostrar) {
         $("#tablaCuerpo").empty();
         for (var i = 0; i < productosMostrar.length; i++) {
@@ -48,14 +57,17 @@
                 "<a onclick=mostrarChat('" + productosMostrar[i]._id + "','" + productosMostrar[i].propietario + "','" + encodeURI(productosMostrar[i].nombre) + "')>Chatear</a>" +
                 "</td>" +
                 "</tr>");
-            console.log(productosMostrar[i]._id);
-            console.log(productosMostrar[i].propietario);
-            console.log(productosMostrar[i].nombre);
         }
     }
 
+    //Por defecto al inicializar el widget se cargan las ofertas
     cargarProductos();
 
+    /**
+     * Método encargado de cargar la vista de chat de un producto en particular. Como parámetros tiene el id del producto
+     * del chat, el usuario con el que se va a chatear y el nombre del producto (estos dos últimos parámetros son
+     * utilizados para mostrar en la vista de chat).
+     */
     function mostrarChat(product, usuarioPropietario, nomProducto) {
         //Cargamos el chat específico para el producto dado
         productoSeleccionado = product;

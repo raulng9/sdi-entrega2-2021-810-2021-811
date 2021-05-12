@@ -8,7 +8,6 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
      */
     app.post("/producto", function (req, res) {
         let usuario = req.session.usuario;
-        console.log(usuario);
         if (req.body.nombre === '' || req.body.descripcion === '' || req.body.precio === '') {
             res.send("Error en los datos del producto");
         } else if (req.body.nombre.length <= 2) {
@@ -270,13 +269,11 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             "_id": productoId
         };
         gestorProductos.obtenerProductos(productoId, function (productos) {
-                if (productos == null || productos.length == 0)
+                if (productos == null || productos.length === 0)
                     res.send("Error al encontrar producto");
                 else {
                     let producto = productos[0];
-                    console.log(producto);
                     producto.destacada = true;
-                    console.log(producto);
                     gestorProductos.modificarProducto(criterio_producto, producto, function (result) {
                         if (result == null)
                             res.send("Error al modificar oferta");

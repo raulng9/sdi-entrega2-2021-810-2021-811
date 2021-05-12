@@ -28,6 +28,12 @@
 
 <script>
     window.history.pushState("", "", "/cliente.html?w=conversaciones");
+
+    /**
+     * Método encargado de llamar a la API para obtener las conversaciones como interesado del usuario. En el caso de ç
+     * una respuesta correcta se procede a buscar el resto de información de las conversaciones para posteriormente
+     * incluirlas en la tabla correspondiente.
+     */
     function cargarConversacionesInteresado(){
         $.ajax({
             url: URLbase + "/conversaciones/interesado",
@@ -46,6 +52,12 @@
             }
         });
     }
+
+    /**
+     * Método encargado de llamar a la API para obtener las conversaciones como propietario del usuario. En el caso de ç
+     * una respuesta correcta se procede a buscar el resto de información de las conversaciones para posteriormente
+     * incluirlas en la tabla correspondiente.
+     */
     function cargarConversacionesPropietario(){
         $.ajax({
             url: URLbase + "/conversaciones/propietario",
@@ -57,7 +69,6 @@
             success: function(respuesta) {
                 conversaciones = respuesta;
                 $( "#tablaMensajesPropietario" ).empty();
-                console.log(conversaciones);
                 buscarNombresDeProductoPropietario(conversaciones);
             },
             error : function (error){
@@ -66,6 +77,11 @@
         });
     }
 
+    /**
+     * Método encargado de llamar a la API para obtener los datos de un producto en particular. Se utiliza para conseguir
+     * el nombre de un producto y el resto de su información a partir de su id. En el caso de una respuesta correcta se
+     * procede a incluir toda la información necesaria en la tabla mediante el método incluirConvInteresadoEnTabla()
+     */
     function buscarNombresDeProductoInteresado(listadoConversaciones){
         for(var i = 0; i < listadoConversaciones.length; i++){
             var currentConv = listadoConversaciones[i];
@@ -86,6 +102,11 @@
         }
     }
 
+    /**
+     * Método encargado de llamar a la API para obtener los datos de un producto en particular. Se utiliza para conseguir
+     * el nombre de un producto y el resto de su información a partir de su id. En el caso de una respuesta correcta se
+     * procede a incluir toda la información necesaria en la tabla mediante el método incluirConvPropietarioEnTabla()
+     */
     function buscarNombresDeProductoPropietario(listadoConversaciones){
         for(var i = 0; i < listadoConversaciones.length; i++){
             var currentConv = listadoConversaciones[i];
@@ -112,6 +133,11 @@
     cargarConversacionesPropietario();
 
 
+    /**
+     * Método para incluir una fila representando una conversación en la tabla de conversaciones como interesado.
+     * Obtiene la conversación a incluir y el nombre del producto y los envía como parámetros a los onClick de las
+     * opciones (eliminar y abrir el chat de la conversación). También incluye el contador para mensajes no leídos.
+     */
     function incluirConvInteresadoEnTabla(conversacionParaIncluir, nombreProducto){
         var tablaInteresado = $( "#tablaMensajesInteresado" );
         tablaInteresado.append(
@@ -127,10 +153,14 @@
             "<td class='contador_no_leidos_interesado'></td>" +
             "</tr>");
         let numConvsInteresado = $('.contador_no_leidos_interesado').length-1;
-        console.log("calculados " + numConvsInteresado);
         mostrarNoLeidosInteresado(conversacionParaIncluir._id, numConvsInteresado);
     }
 
+    /**
+     * Método para incluir una fila representando una conversación en la tabla de conversaciones como propietario.
+     * Obtiene la conversación a incluir y el nombre del producto y los envía como parámetros a los onClick de las
+     * opciones (eliminar y abrir el chat de la conversación). También incluye el contador para mensajes no leídos.
+     */
     function incluirConvPropietarioEnTabla(conversacionParaIncluir, nombreProducto){
         var tablaInteresado = $( "#tablaMensajesPropietario" );
         tablaInteresado.append(
@@ -146,19 +176,28 @@
             "<td class='contador_no_leidos_propietario'></td>" +
             "</tr>");
         let numConvsPropietario = $('.contador_no_leidos_propietario').length-1;
-        console.log("calculados " + numConvsPropietario);
         mostrarNoLeidosPropietario(conversacionParaIncluir._id, numConvsPropietario);
     }
 
+    /**
+     * Método para cargar la vista de chat, pasándole la conversación, el id del producto, el usuario con el que se está
+     * chateando y el nombre del producto (estos dos últimos son utilizados para incluir en el html por parte de la vista
+     * de chat).
+     */
     function mostrarChat(conver, producto, usuarioRecep, nomProducto) {
         conversacionSeleccionada = conver;
-        console.log("Mostrando chat para prod " + producto);
         productoSeleccionado = producto;
         usuarioReceptor = usuarioRecep;
         nombreProducto = decodeURI(nomProducto);
         $( "#contenedor-principal" ).load( "widget-chat.html" );
     }
 
+    /**
+     * Método para llamar al endpoint de obtención de mensajes de la API con el token y la conversación de los mensajes
+     * a obtener.
+     * En el caso de una obtención correcta, se procede a la eliminación de los mensajes obtenidos y, posteriormente,
+     * de la conversación a la que pertenecen.
+     */
     function eliminarChat(conversacion){
         $.ajax({
             url: URLbase + "/mensajes/conv/" + conversacion,
@@ -180,11 +219,13 @@
         });
     }
 
-
+    /**
+     * Método para llamar al endpoint de eliminación de mensaje de la API con el token y el mensaje a eliminar.
+     * En el caso de una eliminación correcta no se lleva a cabo ninguna acción adicional pues no se produce ningún
+     * cambio en la vista.
+     */
     function eliminarMensajes(listaDeMensajes){
-        console.log("ahora hay " + listaDeMensajes.length + " mensajes");
         for(let i = 0; i < listaDeMensajes.length; i++){
-            console.log("eliminando " + listaDeMensajes[i]);
             $.ajax({
                 url: URLbase + "/mensajes/eliminar/" + listaDeMensajes[i]._id,
                 type: "GET",
@@ -203,8 +244,12 @@
         }
     }
 
+    /**
+     * Método para llamar al endpoint de eliminación de conversación de la API con el token y la conversación a eliminar.
+     * En el caso de una eliminación correcta, se procede a la actualización de la tabla para que ya no se muestre la
+     * conversación que ha sido eliminada.
+     */
     function eliminarConversacion(conversacion){
-        console.log("a punto de eliminar la conversación " + conversacion);
         $.ajax({
             url: URLbase + "/conversaciones/eliminar/" + conversacion,
             type: "GET",
@@ -214,7 +259,6 @@
                 "token": token,
             },
             success: function(respuesta) {
-                console.log("conversación eliminada correctamente");
                 cargarConversacionesInteresado();
                 cargarConversacionesPropietario();
             },
@@ -225,6 +269,12 @@
 
     }
 
+    /**
+     * Método para llamar al endpoint de conteo de mensajes no leídos de la API con el token y la conversación en la
+     * que llevar a cabo el conteo. En caso de respuesta con éxito, se refresca el contador de la conversación en
+     * cuestión con el nuevo número de mensajes no leídos. En este caso es el referido a conversaciones con rol de
+     * interesado.
+     */
     function mostrarNoLeidosInteresado(conver, indexAEditar){
         $.ajax({
             url: URLbase + "/conversaciones/noleidos/" + conver,
@@ -236,8 +286,6 @@
                 "idConversacion" : conver
             },
             success: function(respuesta) {
-                console.log("obtenidos no leídos interesado con éxito");
-                console.log(respuesta);
                 $('.contador_no_leidos_interesado').eq(indexAEditar).text(respuesta.length + " mensajes no leídos");
             },
             error : function (error){
@@ -246,6 +294,12 @@
         });
     }
 
+    /**
+     * Método para llamar al endpoint de conteo de mensajes no leídos de la API con el token y la conversación en la
+     * que llevar a cabo el conteo. En caso de respuesta con éxito, se refresca el contador de la conversación en
+     * cuestión con el nuevo número de mensajes no leídos. En este caso es el referido a conversaciones con rol de
+     * propietario.
+     */
     function mostrarNoLeidosPropietario(conver, indexAEditar){
         $.ajax({
             url: URLbase + "/conversaciones/noleidos/" + conver,
@@ -257,8 +311,6 @@
                 "idConversacion" : conver
             },
             success: function(respuesta) {
-                console.log("obtenidos no leídos propietario con éxito");
-                console.log(respuesta);
                 $('.contador_no_leidos_propietario').eq(indexAEditar).text(respuesta.length + " mensajes no leídos");
             },
             error : function (error){
@@ -267,6 +319,9 @@
         });
     }
 
+    /**
+     * Método encargado de invocar la actualización del contador de no leídos de todas las conversaciones de ambas tablas.
+     */
     function actualizarNoLeidos(){
         $('.propietarioTableRow').each(function (index, element) {
             var idConv = $(element).attr('id');
@@ -279,6 +334,9 @@
     }
 
 
+    /**
+     * Intervalo para actualizar los contadores de mensajes no leídos de ambas tablas cada 1 segundo (según guion).
+     */
     setInterval(function() {
         if( $("#widget-conversaciones").is(":visible")){
             actualizarNoLeidos();

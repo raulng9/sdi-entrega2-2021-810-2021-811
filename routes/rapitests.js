@@ -1,6 +1,9 @@
 module.exports = function (app, gestorUsuarios, gestorProductos, gestorChat) {
 
-    //Limpieza general de la BBDD
+    /**
+     * Método Get para eliminar los datos de la base de datos y mantener un estado consistente a la hora de realizar
+     * las pruebas. Se eliminan los mensajes, conversaciones, productos y usuarios.
+     */
     app.get("/api/test/eliminar", function (req, res) {
         gestorChat.eliminarMensaje({}, function (mensajes) {
             gestorChat.eliminarConversacion({}, function (conversaciones) {
@@ -13,7 +16,10 @@ module.exports = function (app, gestorUsuarios, gestorProductos, gestorChat) {
         });
     });
 
-
+    /**
+     * Método Get para insertar los datos por defecto en la base de datos a la hora de realizar los tests.
+     * Se insertan usuaarios, productos, conversaciones y mensajes.
+     */
     app.get("/api/test/datos/insertar", function (req, res) {
             var usuario_1_eliminar = {
                 email: "usuario_1_eliminar@email.com",

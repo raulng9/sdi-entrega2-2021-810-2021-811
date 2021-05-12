@@ -1,8 +1,10 @@
 module.exports = function(app, gestorProductos) {
 
-    //TODO comentar
     /**
-     *
+     * Método Get para obtener una lista de las ofertas disponibles en la plataforma.
+     * Se utiliza un token de seguridad para que únicamente los usuarios registrados puedan acceder a las ofertas
+     * disponibles, y también para garantizar que sus propias ofertas no aparecen en la lista. Además, solo se tienen
+     * en cuenta aquellas ofertas que siguen disponibles en el momento de la llamada (campo comprador con valor null).
      */
     app.get("/api/ofertas", function(req, res) {
         let token = req.headers['token'] || req.body.token || req.query.token;
@@ -39,33 +41,13 @@ module.exports = function(app, gestorProductos) {
         });
     });
 
-    /*
-    //TODO borrar, no es necesario
-    app.get("/api/productospropios", function(req, res) {
-        console.log(req.session.usuario);
-        //Para acceder a los productos que vende el usuario
-        let criterio = {
-            propietario : req.session.usuario
-        };
-        console.log("Buscando productos del usuario " + [req.session.usuario]);
-        gestorProductos.obtenerProductos( criterio, function(productos) {
-            if (productos == null) {
-                app.get("logger").error("API: Error al obtener las ofertas");
-                res.status(500);
-                res.json({
-                    error : "Error al obtener los productos de la BBDD"
-                })
-            } else {
-                app.get("logger").info("API: Productos obtenidos correctamente");
-                res.status(200);
-                console.log(JSON.stringify(productos));
-                res.send( JSON.stringify(productos) );
-            }
-        });
-    });
-    */
-
-    //TODO comentar
+    /**
+     * Método Get para obtener los datos de un producto determinado (utilizado por la API para buscar datos del producto
+     * a partir de su ID).
+     * Se utiliza un token de seguridad para que únicamente los usuarios logueados puedan acceder a la información de los
+     * productos, pero no se aplican más restricciones ya que la información de los productos ha de estar disponible
+     * para todos los usuarios.
+     */
     app.get("/api/producto/:idProducto", function(req, res) {
         let token = req.headers['token'] || req.body.token || req.query.token;
         app.get('jwt').verify(token, 'secreto', function (err, infoToken) {
@@ -84,7 +66,6 @@ module.exports = function(app, gestorProductos) {
                 let criterio_producto = {
                     _id: gestorProductos.mongo.ObjectID(producto)
                 };
-                console.log("Buscando datos del producto " + [req.params.producto]);
                 gestorProductos.obtenerProductos(criterio_producto, function (productos) {
                     if (productos == null) {
                         app.get("logger").error("API: Error al obtener las ofertas");
@@ -95,7 +76,6 @@ module.exports = function(app, gestorProductos) {
                     } else {
                         app.get("logger").info("API: Producto obtenido correctamente");
                         res.status(200);
-                        console.log(JSON.stringify(productos));
                         res.send(JSON.stringify(productos));
                     }
                 });

@@ -13,6 +13,11 @@
 </div>
 
 <script>
+    /**
+     * Método para llamar al endpoint de obtención de mensajes de la API con el token y el producto determinado de
+     * la conversación. En el caso de una obtención correcta, se procede a actualizar tanto los datos del chat como
+     * el propio contenido con los nuevos mensajes)
+     */
     function cargarMensajes() {
         $.ajax({
             url : URLbase + "/mensajes/" + productoSeleccionado,
@@ -32,6 +37,10 @@
         });
     }
 
+    /**
+     * Método para mostrar en la vista de chat el usuario con el que se está chateando y el producto al que pertenece
+     * la conversación actual.
+     */
     function actualizarDatosExtraChat(nombrePropietario, nombreProducto){
         let encabezadoDatos = $("#datos_oferta");
         encabezadoDatos.empty();
@@ -39,6 +48,11 @@
     }
 
 
+    /**
+     * Método para actualizar el contenedor del chat con el estado actual de los mensajes tras cada recarga.
+     * Se incluyen las clases auxiliares para indicar el emisor del mensaje y el estado de lectura en el caso
+     * de ser mensajes propios del usuario.
+     */
     function actualizarMensajesChat(mensajesMostrar) {
         let codigoTabla = "";
         $("#chat-container").empty();
@@ -60,6 +74,10 @@
         $("#chat-container").append(codigoTabla);
     }
 
+    /**
+     * Método para llamar al endpoint de envío de mensajes de la API con el token y el contenido del mensaje a enviar
+     * en el caso de enviar con éxito se refresca la vista para mostrar el chat actualizado.
+     */
     function enviarMensaje() {
         $.ajax({
             url: URLbase + "/enviarmensaje",
@@ -84,7 +102,10 @@
         });
     }
 
-    //Refresco cada segundo según guion (falta testear)
+    /**
+     * Intervalo para la recarga de la vista del chat cada segundo (según guion), siempre que esté visible esta vista
+     * (id título).
+     */
     setInterval(function() {
         if( $("#titulo").is(":visible")){
             cargarMensajes();
@@ -92,6 +113,10 @@
     }, 1000);
 
 
+    /**
+     * Método para llamar al endpoint de marcaje de mensaje como leído de la API con el token y el identificador del
+     * mensaje a marcar.
+     */
     function marcarMensajeComoLeido(mensajeMarcar) {
         $.ajax({
             url: URLbase + "/mensajes/marcarleido/" + mensajeMarcar,
