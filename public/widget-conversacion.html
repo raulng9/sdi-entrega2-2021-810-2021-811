@@ -115,11 +115,11 @@
     function incluirConvInteresadoEnTabla(conversacionParaIncluir, nombreProducto){
         var tablaInteresado = $( "#tablaMensajesInteresado" );
         tablaInteresado.append(
-            "<tr id="+conversacionParaIncluir._id+ " class='interesadosTabla'>" +
+            "<tr id="+conversacionParaIncluir._id+ " class='interesadoTableRow'>" +
             "<td>"+conversacionParaIncluir.usuario2+"</td>" +
             "<td>"+nombreProducto+"</td>" +
             "<td>" +
-            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario2 + "','" + nombreProducto + "')>Chat</a>"+
+            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario2 + "','" + encodeURI(nombreProducto) + "')>Chat</a>"+
             "</td>" +
             "<td>" +
             "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
@@ -134,11 +134,11 @@
     function incluirConvPropietarioEnTabla(conversacionParaIncluir, nombreProducto){
         var tablaInteresado = $( "#tablaMensajesPropietario" );
         tablaInteresado.append(
-            "<tr id="+conversacionParaIncluir._id+">"+
+            "<tr id="+conversacionParaIncluir._id+" class='propietarioTableRow'>"+
             "<td>"+conversacionParaIncluir.usuario1+"</td>" +
             "<td>"+nombreProducto+"</td>" +
             "<td>" +
-            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario1 + "','" + nombreProducto + "')>Chat</a>"+
+            "<a onclick=mostrarChat('" + conversacionParaIncluir._id + "','" + conversacionParaIncluir.producto + "','" + conversacionParaIncluir.usuario1 + "','" + encodeURI(nombreProducto) + "')>Chat</a>"+
             "</td>" +
             "<td>" +
             "<a onclick=eliminarChat('" + conversacionParaIncluir._id + "')>Eliminar chat</a>"+
@@ -155,7 +155,7 @@
         console.log("Mostrando chat para prod " + producto);
         productoSeleccionado = producto;
         usuarioReceptor = usuarioRecep;
-        nombreProducto = nomProducto;
+        nombreProducto = decodeURI(nomProducto);
         $( "#contenedor-principal" ).load( "widget-chat.html" );
     }
 
@@ -238,7 +238,7 @@
             success: function(respuesta) {
                 console.log("obtenidos no leídos interesado con éxito");
                 console.log(respuesta);
-                $('.contador_no_leidos_interesado').eq(indexAEditar).append(respuesta.length + " mensajes no leídos");
+                $('.contador_no_leidos_interesado').eq(indexAEditar).text(respuesta.length + " mensajes no leídos");
             },
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
@@ -259,7 +259,7 @@
             success: function(respuesta) {
                 console.log("obtenidos no leídos propietario con éxito");
                 console.log(respuesta);
-                $('.contador_no_leidos_propietario').eq(indexAEditar).append(respuesta.length + " mensajes no leídos");
+                $('.contador_no_leidos_propietario').eq(indexAEditar).text(respuesta.length + " mensajes no leídos");
             },
             error : function (error){
                 $( "#contenedor-principal" ).load("widget-login.html");
@@ -267,13 +267,23 @@
         });
     }
 
-    /*
+    function actualizarNoLeidos(){
+        $('.propietarioTableRow').each(function (index, element) {
+            var idConv = $(element).attr('id');
+            mostrarNoLeidosPropietario(idConv, index);
+        });
+        $('.interesadoTableRow').each(function (index, element) {
+            var idConv = $(element).attr('id');
+            mostrarNoLeidosInteresado(idConv, index);
+        });
+    }
+
+
     setInterval(function() {
         if( $("#widget-conversaciones").is(":visible")){
-            cargarConversacionesPropietario();
-            cargarConversacionesInteresado()
+            actualizarNoLeidos();
         }
     }, 1000);
-    */
+
 
 </script>

@@ -561,7 +561,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                         });
                     } else {
                         let criterio_mensajes = {
-                            conversacion: gestorProductos.mongo.ObjectID(conversacionRes[0]._id),
+                            conversacion: gestorProductos.mongo.ObjectID(conversacion),
                             emisor: {$nin: [usuario]},
                             "leido": false
                         };
