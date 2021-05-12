@@ -1,4 +1,4 @@
-<div id="widget-conversaciones" >
+<div id="widget-conversaciones-producto" >
     <h3 class="titulo_prod_propio">Conversaciones del producto</h3>
     <table class="table table-hover" id="tablaMainMensajes">
         <thead>
@@ -40,8 +40,8 @@
     function actualizarTabla(conversacionesMostrar){
         if(conversacionesMostrar.length === 0){
             $( "#tablaMainMensajes" ).remove();
-            $( "#widget-conversaciones" ).empty();
-            $( "#widget-conversaciones" ).append(
+            $( "#widget-conversaciones-producto" ).empty();
+            $( "#widget-conversaciones-producto" ).append(
                 "<h4>"+
                 "<p>No tienes conversaciones relaccionadas con este producto</p>" +
                 "</h4>" );
@@ -157,4 +157,13 @@
             }
         });
     }
+
+    /*
+    setInterval(function() {
+        if( $("#widget-conversaciones-producto").is(":visible")){
+            cargarConversacionesProductosPropios();
+        }
+    }, 1000);
+    */
+
 </script>
