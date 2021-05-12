@@ -1,6 +1,11 @@
 module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
 
-//Post con los datos para añadir un producto a la tienda
+    /**
+     * Metodo Post con los datos para añadir un producto a la tienda.
+     * Se comprueba primero los parámetros de entrada, si son correctos se produce a añadir el producto.
+     * Si este producto es de carácter destacado se quita 20 euros al usuario si los tiene y se cambia la propiedad del producto
+     * a destacada : true.
+     */
     app.post("/producto", function (req, res) {
         let usuario = req.session.usuario;
         console.log(usuario);
@@ -25,6 +30,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
             }
             gestorProductos.insertarProducto(productoParaInsertar, function (id) {
                     if (id == null) {
+                        app.get("logger").error("Error al añadir producto producto");
                         res.send("Error al añadir el producto");
                     } else {
                         if (productoParaInsertar.destacada) {
@@ -33,6 +39,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                             };
                             gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                                 if (20 > usuarios[0].saldo) {
+                                    app.get("logger").error("Saldo insuficiente para destacar tu oferta");
                                     res.redirect("/producto/agregar?mensaje=No posee suficiente saldo");
                                 } else {
                                     var actualizacion_usuario = {
@@ -40,15 +47,18 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                     };
                                     req.session.saldo = usuarios[0].saldo - 20;
                                     gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
-                                            if (users == null)
+                                            if (users == null) {
+                                                app.get("logger").error("Error al añadir producto producto");
                                                 res.redirect("/producto/agregar?mensaje=Ha ocurrido un error");
-                                            else
-                                                res.redirect("/publicaciones");
+                                            } else
+                                                app.get("logger").info("Producto destacado añadido con éxito");
+                                            res.redirect("/publicaciones");
                                         }
                                     );
                                 }
                             });
                         } else {
+                            app.get("logger").info("Producto añadido con éxito");
                             res.redirect("/publicaciones");
                         }
                     }
@@ -57,7 +67,10 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         }
     });
 
-//Get para el insertado de producto en la tienda
+
+    /**
+     * Metodo Get para el insertado de producto en la tienda
+     */
     app.get('/producto/agregar', function (req, res) {
         let respuesta = swig.renderFile('views/bagregar.html', {
             usuario: req.session.usuario,
@@ -66,7 +79,11 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         res.send(respuesta);
     });
 
-//Vista general con todos los productos de la tienda (excluir propios?)
+
+    /**
+     * Metodo Get para el insertado de producto en la tienda
+     * Se mostrarán los productos con una paginación de 5 objetos por página
+     */
     app.get("/tienda", function (req, res) {
         let criterio = {};
         if (req.query.busqueda != null) {
@@ -105,16 +122,23 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                         paginas: paginas,
                         actual: pg
                     });
+                app.get("logger").info("Vista de todas las ofertas disponibles");
                 res.send(respuesta);
             }
         });
     });
 
-//Get para las ofertas propias del usuario
+
+    /**
+     * Método Get para los ofertas que sean propias del usuario
+     * Se obtienen los productos de la BBDD que tengan como propietario al usuario en sesión
+     * y se muestran todas.
+     */
     app.get("/publicaciones", function (req, res) {
         let criterio = {propietario: req.session.usuario};
         gestorProductos.obtenerProductos(criterio, function (productos) {
             if (productos == null) {
+                app.get("logger").error("Error al listar las ofertas");
                 res.send("Error al listar ");
             } else {
                 let respuesta = swig.renderFile('views/bpublicaciones.html',
@@ -123,24 +147,33 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                         usuario: req.session.usuario,
                         saldo: req.session.saldo
                     });
+                app.get("logger").info("Mostrando tus ofertas");
                 res.send(respuesta);
             }
         });
     });
 
-//Get para eliminar un producto de la BBDD
+
+    /**
+     * Método Get para eliminar un producto de la BBDD
+     * Sólo se podrá eliminar un producto si eres el propietario y si esta oferta no ha sido comprada todavía
+     */
     app.get('/producto/eliminar/:id', function (req, res) {
         let criterio = {"_id": gestorProductos.mongo.ObjectID(req.params.id)};
         gestorProductos.obtenerProductos(criterio, function (productoss) {
             if (productoss[0].propietario != req.session.usuario) {
+                app.get("logger").error("No puedes eliminar esta oferta ya que no eres el propietario");
                 res.redirect("/publicaciones?mensaje=No eres el propietario de la oferta" + "&tipoMensaje=alert-danger");
             } else if (productoss[0].comprador != null) {
+                app.get("logger").error("No puedes eliminar esta oferta ya que ya ha sido comprada");
                 res.redirect("/publicaciones?mensaje=Esta oferta ya ha sido comprada" + "&tipoMensaje=alert-danger");
             } else {
                 gestorProductos.eliminarProducto(criterio, function (productos) {
                     if (productos == null) {
+                        app.get("logger").error("Error al eliminar oferta");
                         res.redirect("/publicaciones?mensaje=Ha ocurrido un error" + "&tipoMensaje=alert-danger");
                     } else {
+                        app.get("logger").info("Producto " + productoss[0].nombre + " eliminado con éxito");
                         res.redirect("/publicaciones");
                     }
                 });
@@ -148,7 +181,12 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-//Comprar producto
+    /**
+     * Método Get para comprar productos en la tienda.
+     * Se comprueba primero que el producto que se va a comprar exista, después se comprueba si el usuario en sesion posee el saldo suficiente
+     * y que no sea el propietario del producto en cuestión. Si es así se quita el saldo correspondiente al producto, se le añade un comprador,
+     * en este caso el usuario en sesión y se finaliza con la operación.
+     */
     app.get('/producto/comprar/:id', function (req, res) {
         var productoId = gestorProductos.mongo.ObjectID(req.params.id);
         var criterio = {
@@ -159,6 +197,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         };
         gestorProductos.obtenerProductos(criterio, function (productos) {
             if (productos == null) {
+                app.get("logger").error("Error comprando el producto");
                 res.redirect("/tienda?mensaje=Ha ocurrido un error" + "&tipoMensaje=alert-danger");
             } else {
                 var criterio_usuario = {
@@ -166,6 +205,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                 };
                 gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                         if (productos[0].precio > usuarios[0].saldo) {
+                            app.get("logger").error("No posees suficiente saldo para comprar esa oferta");
                             res.redirect("/tienda?mensaje=No posee suficiente saldo" + "&tipoMensaje=alert-danger");
                         } else {
                             if (productos[0].propietario !== req.session.usuario && productos[0].comprador == null) {
@@ -181,7 +221,8 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                                 if (users == null)
                                                     res.redirect("/tienda?mensaje=Ha ocurrido un error" + "&tipoMensaje=alert-danger");
                                                 else
-                                                    res.redirect("/compras");
+                                                    app.get("logger").info("Compra realizada con éxito");
+                                                res.redirect("/compras");
                                             }
                                         );
                                     }
@@ -196,7 +237,10 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
         });
     });
 
-//Obtener compras propias del usuario y enviar a vista
+
+    /**
+     * Método Get para obtener compras propias del usuario y enviar a la vista bcompras
+     */
     app.get('/compras', function (req, res) {
         let criterio = {"comprador": req.session.usuario};
         gestorProductos.obtenerProductos(criterio, function (productos) {
@@ -209,11 +253,17 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                         usuario: req.session.usuario,
                         saldo: req.session.saldo
                     });
+                app.get("logger").info("Cargando tus compras");
                 res.send(respuesta);
             }
         });
     });
 
+    /**
+     * Metodo Get para destacar un producto.
+     * Primero se busca que el producto que se quiere destacar existe en la BBDD, si es así se modifica el producto para que
+     * el parámetro destacada pase a tener el valor true. Esto solo se hará si el usuario posee el crédito suficiente.
+     */
     app.get('/producto/destacar/:id', function (req, res) {
         var productoId = gestorProductos.mongo.ObjectID(req.params.id);
         var criterio_producto = {
@@ -236,6 +286,7 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                             };
                             gestorUsuarios.obtenerUsuarios(criterio_usuario, function (usuarios) {
                                 if (20 > usuarios[0].saldo) {
+                                    app.get("logger").error("No posee suficiente saldo para destacar la oferta");
                                     res.redirect("/publicaciones?mensaje=No posee suficiente saldo" + "&tipoMensaje=alert-danger");
                                 } else {
                                     var actualizacion_usuario = {
@@ -243,10 +294,13 @@ module.exports = function (app, swig, gestorUsuarios, gestorProductos) {
                                     };
                                     req.session.saldo = usuarios[0].saldo - 20;
                                     gestorUsuarios.modificarUsuarios(criterio_usuario, actualizacion_usuario, function (users) {
-                                            if (users == null)
+                                            if (users == null) {
+                                                app.get("logger").error("Error destacando oferta");
                                                 res.redirect("/publicaciones?mensaje=Ha ocurrido un error" + "&tipoMensaje=alert-danger");
-                                            else
+                                            } else {
+                                                app.get("logger").info("Producto destacado con éxito");
                                                 res.redirect("/publicaciones");
+                                            }
                                         }
                                     );
                                 }

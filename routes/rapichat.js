@@ -1,5 +1,6 @@
 module.exports = function (app, gestorProductos, gestorChat) {
 
+    //TODO comentar
     app.post("/api/enviarmensaje", function (req, res) {
             console.log("enviando mensaje del usuario " + req.session.usuario + " al producto " + req.body.producto);
             let date = new Date();
@@ -68,6 +69,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                         error: "Se ha producido un error al insertar el mensaje en la conversación"
                                     })
                                 } else {
+                                    app.get("logger").info("API: Mensaje " + mensajes[0].mensaje + " enviado con éxito");
                                     res.status(201);
                                     res.json({
                                         mensaje: "Mensaje enviado con éxito"
@@ -83,6 +85,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                         error: "Se ha producido un error al insertar la conversación en la BBDD"
                                     })
                                 } else {
+                                    app.get("logger").info("API: Conversación " + conversacion[0] + " creada con éxito");
                                     let criterio_mensaje = {
                                         "emisor": usuario,
                                         "texto": texto,
@@ -97,6 +100,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                                 error: "Se ha producido un error al insertar el mensaje en la conversación"
                                             })
                                         } else {
+                                            app.get("logger").info("API: Mensaje " + mensajes[0].mensaje + " enviado con éxito");
                                             res.status(201);
                                             res.json({
                                                 error: "Mensaje enviado con éxito"
@@ -112,6 +116,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         }
     );
 
+    //TODO comentar
     //Obtener conversación para un producto dado
     app.get("/api/mensajes/:producto", function (req, res) {
         console.log("obteniendo las conversaciones para el producto " + req.params.producto);
@@ -166,6 +171,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                             error: "Se produjo un error al obtener las conversaciones de la BBDD"
                                         })
                                     } else {
+                                        app.get("logger").info("API: Mensaje " + mensajes[0].mensaje + " obtenido con éxito");
                                         res.status(200);
                                         res.send(JSON.stringify(mensajes));
                                     }
@@ -185,6 +191,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                         error: "Se produjo un error al obtener los mensajes de la BBDD"
                                     })
                                 } else {
+                                    app.get("logger").info("API: Mensaje " + mensajes[0].mensaje + " obtenido con éxito");
                                     res.status(200);
                                     res.send(JSON.stringify(mensajes));
                                 }
@@ -196,6 +203,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
     });
 
+    //TODO comentar
     //Obtener todas las conversaciones en las que el usuario haya tomado parte
     app.get("/api/conversaciones/interesado", function (req, res) {
         console.log("obteniendo las conversaciones como interesado para el usuario " + req.session.usuario);
@@ -212,11 +220,13 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     error: "El usuario no tiene conversaciones como interesado por el momento"
                 });
             } else {
+                app.get("logger").info("API: Conversaciones obtenidas con éxito");
                 res.send(JSON.stringify(conversaciones));
             }
         });
     });
 
+    //TODO comentar
     //Obtener todas las conversaciones en las que el usuario haya tomado parte
     app.get("/api/conversaciones/propietario", function (req, res) {
         console.log("obteniendo las conversaciones como propietario para el usuario " + req.session.usuario);
@@ -233,12 +243,14 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     error: "El usuario no tiene conversaciones como propietario por el momento"
                 });
             } else {
+                app.get("logger").info("API: Conversaciones obtenidas con éxito");
                 console.log(JSON.stringify(conversaciones));
                 res.send(JSON.stringify(conversaciones));
             }
         });
     });
 
+    //TODO comentar
     //Obtener todos los mensajes de una conversación dada
     app.get("/api/mensajes/conv/:conversacion", function (req, res) {
         console.log("obteniendo los mensajes de la conversación " + req.params.conversacion);
@@ -267,6 +279,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                             error: "Se produjo un error al obtener las conversaciones de la BBDD"
                         })
                     } else {
+                        app.get("logger").info("API: Mensajes obtenidos con éxito");
                         res.status(200);
                         console.log("mensajes obtenidos");
                         console.log(JSON.stringify(mensajes));
@@ -277,6 +290,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
     });
 
+    //TODO comentar
     //Obtener todos los mensajes de una conversación dada
     app.get("/api/mensajes/eliminar/:id", function (req, res) {
         console.log("eliminando mensaje " + req.params.id);
@@ -289,6 +303,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     error: "El mensaje a eliminar no se ha encontrado"
                 });
             } else {
+                app.get("logger").info("API: Mensaje " + req.params.id + " eliminado con éxito");
                 res.status(200);
                 console.log("El mensaje " + req.params.id + " se eliminó con éxito");
                 res.send(JSON.stringify(mensaje));
@@ -296,6 +311,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
     });
 
+    //TODO comentar
     //Obtener todos los mensajes de una conversación dada
     app.get("/api/conversaciones/eliminar/:id", function (req, res) {
         let criterio_conversacion = {"_id": gestorChat.mongo.ObjectID(req.params.id)};
@@ -308,6 +324,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                     error: "La conversación a eliminar no se ha encontrado"
                 });
             } else {
+                app.get("logger").info("API: Conversación eliminada correctamente");
                 res.status(200);
                 console.log("Conversación eliminada correctamente");
                 res.send(JSON.stringify(mensaje));
@@ -315,6 +332,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
     });
 
+    //TODO comentar
     app.put("/api/mensajes/marcarleido/:id", function(req, res) {
         console.log("marcando como leído mensaje " + req.params.id);
         let criterio_mensaje = {
@@ -354,6 +372,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                                             error: "Se produjo un error al marcar el mensaje como leído"
                                         })
                                     } else {
+                                        app.get("logger").info("API: Mensaje marcado como leído correctamente");
                                         res.status(200);
                                         res.json({
                                             mensaje: "Mensaje marcado como leído correctamente",
@@ -380,6 +399,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
         });
 
 
+    //TODO comentar
     app.get("/api/conversaciones/noleidos/:idConversacion", function (req, res) {
         console.log("obteniendo número de no leídos para la conver " + req.params.idConversacion);
         let usuario = req.session.usuario;
@@ -407,6 +427,7 @@ module.exports = function (app, gestorProductos, gestorChat) {
                             error: "Los mensajes no se han podido encontrar"
                         });
                     } else {
+                        app.get("logger").info("API: Obtenido número de no leídos correctamente");
                         res.status(200);
                         console.log("Obtenido número de no leídos correctamente");
                         console.log(mensajesNoLeidos);
